@@ -1,14 +1,11 @@
 import {
-  APP_BOOTSTRAP_LISTENER,
   ApplicationRef,
   Attribute,
   ChangeDetectorRef,
-  Console,
   DEFAULT_CURRENCY_CODE,
+  DestroyRef,
   Directive,
   ElementRef,
-  EnvironmentInjector,
-  EventEmitter,
   Host,
   IMAGE_CONFIG,
   IMAGE_CONFIG_DEFAULTS,
@@ -17,7 +14,6 @@ import {
   InjectionToken,
   Injector,
   Input,
-  InputFlags,
   IterableDiffers,
   KeyValueDiffers,
   LOCALE_ID,
@@ -25,50 +21,30 @@ import {
   NgModule,
   NgModuleRef$1,
   NgZone,
-  Observable,
   Optional,
   PLATFORM_ID,
-  PendingTasks,
   Pipe,
   Renderer2,
   RendererStyleFlags2,
   RuntimeError,
+  Subject,
   TemplateRef,
-  TransferState,
   Version,
   ViewContainerRef,
-  __async,
-  __objRest,
-  __spreadProps,
-  __spreadValues,
   booleanAttribute,
-  concatMap,
   createNgModule,
-  filter,
-  finalize,
   findLocaleData,
   formatRuntimeError,
-  from,
   getLocalePluralCase,
   inject,
   isPromise,
   isSubscribable,
-  makeEnvironmentProviders,
-  makeStateKey,
-  map,
   numberAttribute,
-  of,
   performanceMarkFeature,
-  runInInjectionContext,
   setClassMetadata,
   stringify,
-  switchMap,
-  tap,
-  truncateMiddle,
   untracked,
   unwrapSafeValue,
-  whenStable,
-  ɵɵInputTransformsFeature,
   ɵɵNgOnChangesFeature,
   ɵɵdefineDirective,
   ɵɵdefineInjectable,
@@ -79,7 +55,12 @@ import {
   ɵɵinject,
   ɵɵinjectAttribute,
   ɵɵstyleProp
-} from "./chunk-GSEU53OH.js";
+} from "./chunk-46ZFTYAL.js";
+import {
+  __async,
+  __spreadProps,
+  __spreadValues
+} from "./chunk-WDMUDEB6.js";
 
 // node_modules/@angular/common/fesm2022/common.mjs
 var _DOM = null;
@@ -92,18 +73,14 @@ function setRootDomAdapter(adapter) {
 var DomAdapter = class {
 };
 var PlatformNavigation = class _PlatformNavigation {
-  static {
-    this.ɵfac = function PlatformNavigation_Factory(t) {
-      return new (t || _PlatformNavigation)();
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _PlatformNavigation,
-      factory: () => (() => window.navigation)(),
-      providedIn: "platform"
-    });
-  }
+  static ɵfac = function PlatformNavigation_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _PlatformNavigation)();
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _PlatformNavigation,
+    factory: () => (() => window.navigation)(),
+    providedIn: "platform"
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(PlatformNavigation, [{
@@ -119,18 +96,14 @@ var PlatformLocation = class _PlatformLocation {
   historyGo(relativePosition) {
     throw new Error(ngDevMode ? "Not implemented" : "");
   }
-  static {
-    this.ɵfac = function PlatformLocation_Factory(t) {
-      return new (t || _PlatformLocation)();
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _PlatformLocation,
-      factory: () => (() => inject(BrowserPlatformLocation))(),
-      providedIn: "platform"
-    });
-  }
+  static ɵfac = function PlatformLocation_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _PlatformLocation)();
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _PlatformLocation,
+    factory: () => (() => inject(BrowserPlatformLocation))(),
+    providedIn: "platform"
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(PlatformLocation, [{
@@ -143,9 +116,11 @@ var PlatformLocation = class _PlatformLocation {
 })();
 var LOCATION_INITIALIZED = new InjectionToken(ngDevMode ? "Location Initialized" : "");
 var BrowserPlatformLocation = class _BrowserPlatformLocation extends PlatformLocation {
+  _location;
+  _history;
+  _doc = inject(DOCUMENT);
   constructor() {
     super();
-    this._doc = inject(DOCUMENT);
     this._location = window.location;
     this._history = window.history;
   }
@@ -204,18 +179,14 @@ var BrowserPlatformLocation = class _BrowserPlatformLocation extends PlatformLoc
   getState() {
     return this._history.state;
   }
-  static {
-    this.ɵfac = function BrowserPlatformLocation_Factory(t) {
-      return new (t || _BrowserPlatformLocation)();
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _BrowserPlatformLocation,
-      factory: () => (() => new _BrowserPlatformLocation())(),
-      providedIn: "platform"
-    });
-  }
+  static ɵfac = function BrowserPlatformLocation_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _BrowserPlatformLocation)();
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _BrowserPlatformLocation,
+    factory: () => (() => new _BrowserPlatformLocation())(),
+    providedIn: "platform"
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BrowserPlatformLocation, [{
@@ -227,52 +198,32 @@ var BrowserPlatformLocation = class _BrowserPlatformLocation extends PlatformLoc
   }], () => [], null);
 })();
 function joinWithSlash(start, end) {
-  if (start.length == 0) {
-    return end;
-  }
-  if (end.length == 0) {
-    return start;
-  }
-  let slashes = 0;
+  if (!start) return end;
+  if (!end) return start;
   if (start.endsWith("/")) {
-    slashes++;
+    return end.startsWith("/") ? start + end.slice(1) : start + end;
   }
-  if (end.startsWith("/")) {
-    slashes++;
-  }
-  if (slashes == 2) {
-    return start + end.substring(1);
-  }
-  if (slashes == 1) {
-    return start + end;
-  }
-  return start + "/" + end;
+  return end.startsWith("/") ? start + end : `${start}/${end}`;
 }
 function stripTrailingSlash(url) {
-  const match = url.match(/#|\?|$/);
-  const pathEndIdx = match && match.index || url.length;
-  const droppedSlashIdx = pathEndIdx - (url[pathEndIdx - 1] === "/" ? 1 : 0);
-  return url.slice(0, droppedSlashIdx) + url.slice(pathEndIdx);
+  const pathEndIdx = url.search(/#|\?|$/);
+  return url[pathEndIdx - 1] === "/" ? url.slice(0, pathEndIdx - 1) + url.slice(pathEndIdx) : url;
 }
 function normalizeQueryParams(params) {
-  return params && params[0] !== "?" ? "?" + params : params;
+  return params && params[0] !== "?" ? `?${params}` : params;
 }
 var LocationStrategy = class _LocationStrategy {
   historyGo(relativePosition) {
     throw new Error(ngDevMode ? "Not implemented" : "");
   }
-  static {
-    this.ɵfac = function LocationStrategy_Factory(t) {
-      return new (t || _LocationStrategy)();
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _LocationStrategy,
-      factory: () => (() => inject(PathLocationStrategy))(),
-      providedIn: "root"
-    });
-  }
+  static ɵfac = function LocationStrategy_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _LocationStrategy)();
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _LocationStrategy,
+    factory: () => (() => inject(PathLocationStrategy))(),
+    providedIn: "root"
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(LocationStrategy, [{
@@ -285,10 +236,12 @@ var LocationStrategy = class _LocationStrategy {
 })();
 var APP_BASE_HREF = new InjectionToken(ngDevMode ? "appBaseHref" : "");
 var PathLocationStrategy = class _PathLocationStrategy extends LocationStrategy {
+  _platformLocation;
+  _baseHref;
+  _removeListenerFns = [];
   constructor(_platformLocation, href) {
     super();
     this._platformLocation = _platformLocation;
-    this._removeListenerFns = [];
     this._baseHref = href ?? this._platformLocation.getBaseHrefFromDOM() ?? inject(DOCUMENT).location?.origin ?? "";
   }
   /** @nodoc */
@@ -331,18 +284,14 @@ var PathLocationStrategy = class _PathLocationStrategy extends LocationStrategy 
   historyGo(relativePosition = 0) {
     this._platformLocation.historyGo?.(relativePosition);
   }
-  static {
-    this.ɵfac = function PathLocationStrategy_Factory(t) {
-      return new (t || _PathLocationStrategy)(ɵɵinject(PlatformLocation), ɵɵinject(APP_BASE_HREF, 8));
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _PathLocationStrategy,
-      factory: _PathLocationStrategy.ɵfac,
-      providedIn: "root"
-    });
-  }
+  static ɵfac = function PathLocationStrategy_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _PathLocationStrategy)(ɵɵinject(PlatformLocation), ɵɵinject(APP_BASE_HREF, 8));
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _PathLocationStrategy,
+    factory: _PathLocationStrategy.ɵfac,
+    providedIn: "root"
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(PathLocationStrategy, [{
@@ -363,11 +312,12 @@ var PathLocationStrategy = class _PathLocationStrategy extends LocationStrategy 
   }], null);
 })();
 var HashLocationStrategy = class _HashLocationStrategy extends LocationStrategy {
+  _platformLocation;
+  _baseHref = "";
+  _removeListenerFns = [];
   constructor(_platformLocation, _baseHref) {
     super();
     this._platformLocation = _platformLocation;
-    this._baseHref = "";
-    this._removeListenerFns = [];
     if (_baseHref != null) {
       this._baseHref = _baseHref;
     }
@@ -393,17 +343,11 @@ var HashLocationStrategy = class _HashLocationStrategy extends LocationStrategy 
     return url.length > 0 ? "#" + url : url;
   }
   pushState(state, title, path, queryParams) {
-    let url = this.prepareExternalUrl(path + normalizeQueryParams(queryParams));
-    if (url.length == 0) {
-      url = this._platformLocation.pathname;
-    }
+    const url = this.prepareExternalUrl(path + normalizeQueryParams(queryParams)) || this._platformLocation.pathname;
     this._platformLocation.pushState(state, title, url);
   }
   replaceState(state, title, path, queryParams) {
-    let url = this.prepareExternalUrl(path + normalizeQueryParams(queryParams));
-    if (url.length == 0) {
-      url = this._platformLocation.pathname;
-    }
+    const url = this.prepareExternalUrl(path + normalizeQueryParams(queryParams)) || this._platformLocation.pathname;
     this._platformLocation.replaceState(state, title, url);
   }
   forward() {
@@ -418,17 +362,13 @@ var HashLocationStrategy = class _HashLocationStrategy extends LocationStrategy 
   historyGo(relativePosition = 0) {
     this._platformLocation.historyGo?.(relativePosition);
   }
-  static {
-    this.ɵfac = function HashLocationStrategy_Factory(t) {
-      return new (t || _HashLocationStrategy)(ɵɵinject(PlatformLocation), ɵɵinject(APP_BASE_HREF, 8));
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _HashLocationStrategy,
-      factory: _HashLocationStrategy.ɵfac
-    });
-  }
+  static ɵfac = function HashLocationStrategy_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _HashLocationStrategy)(ɵɵinject(PlatformLocation), ɵɵinject(APP_BASE_HREF, 8));
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _HashLocationStrategy,
+    factory: _HashLocationStrategy.ɵfac
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HashLocationStrategy, [{
@@ -446,15 +386,22 @@ var HashLocationStrategy = class _HashLocationStrategy extends LocationStrategy 
   }], null);
 })();
 var Location = class _Location {
+  /** @internal */
+  _subject = new Subject();
+  /** @internal */
+  _basePath;
+  /** @internal */
+  _locationStrategy;
+  /** @internal */
+  _urlChangeListeners = [];
+  /** @internal */
+  _urlChangeSubscription = null;
   constructor(locationStrategy) {
-    this._subject = new EventEmitter();
-    this._urlChangeListeners = [];
-    this._urlChangeSubscription = null;
     this._locationStrategy = locationStrategy;
     const baseHref = this._locationStrategy.getBaseHref();
     this._basePath = _stripOrigin(stripTrailingSlash(_stripIndexHtml(baseHref)));
     this._locationStrategy.onPopState((ev) => {
-      this._subject.emit({
+      this._subject.next({
         "url": this.path(true),
         "pop": true,
         "state": ev.state,
@@ -618,31 +565,46 @@ var Location = class _Location {
   subscribe(onNext, onThrow, onReturn) {
     return this._subject.subscribe({
       next: onNext,
-      error: onThrow,
-      complete: onReturn
+      error: onThrow ?? void 0,
+      complete: onReturn ?? void 0
     });
   }
-  static {
-    this.normalizeQueryParams = normalizeQueryParams;
-  }
-  static {
-    this.joinWithSlash = joinWithSlash;
-  }
-  static {
-    this.stripTrailingSlash = stripTrailingSlash;
-  }
-  static {
-    this.ɵfac = function Location_Factory(t) {
-      return new (t || _Location)(ɵɵinject(LocationStrategy));
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _Location,
-      factory: () => createLocation(),
-      providedIn: "root"
-    });
-  }
+  /**
+   * Normalizes URL parameters by prepending with `?` if needed.
+   *
+   * @param  params String of URL parameters.
+   *
+   * @returns The normalized URL parameters string.
+   */
+  static normalizeQueryParams = normalizeQueryParams;
+  /**
+   * Joins two parts of a URL with a slash if needed.
+   *
+   * @param start  URL string
+   * @param end    URL string
+   *
+   *
+   * @returns The joined URL string.
+   */
+  static joinWithSlash = joinWithSlash;
+  /**
+   * Removes a trailing slash from a URL string if needed.
+   * Looks for the first occurrence of either `#`, `?`, or the end of the
+   * line as `/` characters and removes the trailing slash if one exists.
+   *
+   * @param url URL string.
+   *
+   * @returns The URL string, modified if needed.
+   */
+  static stripTrailingSlash = stripTrailingSlash;
+  static ɵfac = function Location_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _Location)(ɵɵinject(LocationStrategy));
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _Location,
+    factory: () => createLocation(),
+    providedIn: "root"
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(Location, [{
@@ -1077,31 +1039,6 @@ function getNumberOfCurrencyDigits(code) {
 var ISO8601_DATE_REGEX = /^(\d{4,})-?(\d\d)-?(\d\d)(?:T(\d\d)(?::?(\d\d)(?::?(\d\d)(?:\.(\d+))?)?)?(Z|([+-])(\d\d):?(\d\d))?)?$/;
 var NAMED_FORMATS = {};
 var DATE_FORMATS_SPLIT = /((?:[^BEGHLMOSWYZabcdhmswyz']+)|(?:'(?:[^']|'')*')|(?:G{1,5}|y{1,4}|Y{1,4}|M{1,5}|L{1,5}|w{1,2}|W{1}|d{1,2}|E{1,6}|c{1,6}|a{1,5}|b{1,5}|B{1,5}|h{1,2}|H{1,2}|m{1,2}|s{1,2}|S{1,3}|z{1,4}|Z{1,5}|O{1,4}))([\s\S]*)/;
-var ZoneWidth;
-(function(ZoneWidth2) {
-  ZoneWidth2[ZoneWidth2["Short"] = 0] = "Short";
-  ZoneWidth2[ZoneWidth2["ShortGMT"] = 1] = "ShortGMT";
-  ZoneWidth2[ZoneWidth2["Long"] = 2] = "Long";
-  ZoneWidth2[ZoneWidth2["Extended"] = 3] = "Extended";
-})(ZoneWidth || (ZoneWidth = {}));
-var DateType;
-(function(DateType2) {
-  DateType2[DateType2["FullYear"] = 0] = "FullYear";
-  DateType2[DateType2["Month"] = 1] = "Month";
-  DateType2[DateType2["Date"] = 2] = "Date";
-  DateType2[DateType2["Hours"] = 3] = "Hours";
-  DateType2[DateType2["Minutes"] = 4] = "Minutes";
-  DateType2[DateType2["Seconds"] = 5] = "Seconds";
-  DateType2[DateType2["FractionalSeconds"] = 6] = "FractionalSeconds";
-  DateType2[DateType2["Day"] = 7] = "Day";
-})(DateType || (DateType = {}));
-var TranslationType;
-(function(TranslationType2) {
-  TranslationType2[TranslationType2["DayPeriods"] = 0] = "DayPeriods";
-  TranslationType2[TranslationType2["Days"] = 1] = "Days";
-  TranslationType2[TranslationType2["Months"] = 2] = "Months";
-  TranslationType2[TranslationType2["Eras"] = 3] = "Eras";
-})(TranslationType || (TranslationType = {}));
 function formatDate(value, format, locale, timezone) {
   let date = toDate(value);
   const namedFormat = getNamedFormat(locale, format);
@@ -1235,11 +1172,11 @@ function dateGetter(name, size, offset = 0, trim = false, negWrap = false) {
     if (offset > 0 || part > -offset) {
       part += offset;
     }
-    if (name === DateType.Hours) {
+    if (name === 3) {
       if (part === 0 && offset === -12) {
         part = 12;
       }
-    } else if (name === DateType.FractionalSeconds) {
+    } else if (name === 6) {
       return formatFractionalSeconds(part, size);
     }
     const localeMinus = getLocaleNumberSymbol(locale, NumberSymbol.MinusSign);
@@ -1248,21 +1185,21 @@ function dateGetter(name, size, offset = 0, trim = false, negWrap = false) {
 }
 function getDatePart(part, date) {
   switch (part) {
-    case DateType.FullYear:
+    case 0:
       return date.getFullYear();
-    case DateType.Month:
+    case 1:
       return date.getMonth();
-    case DateType.Date:
+    case 2:
       return date.getDate();
-    case DateType.Hours:
+    case 3:
       return date.getHours();
-    case DateType.Minutes:
+    case 4:
       return date.getMinutes();
-    case DateType.Seconds:
+    case 5:
       return date.getSeconds();
-    case DateType.FractionalSeconds:
+    case 6:
       return date.getMilliseconds();
-    case DateType.Day:
+    case 7:
       return date.getDay();
     default:
       throw new Error(`Unknown DateType value "${part}".`);
@@ -1275,11 +1212,11 @@ function dateStrGetter(name, width, form = FormStyle.Format, extended = false) {
 }
 function getDateTranslation(date, locale, name, width, form, extended) {
   switch (name) {
-    case TranslationType.Months:
+    case 2:
       return getLocaleMonthNames(locale, form, width)[date.getMonth()];
-    case TranslationType.Days:
+    case 1:
       return getLocaleDayNames(locale, form, width)[date.getDay()];
-    case TranslationType.DayPeriods:
+    case 0:
       const currentHours = date.getHours();
       const currentMinutes = date.getMinutes();
       if (extended) {
@@ -1287,10 +1224,10 @@ function getDateTranslation(date, locale, name, width, form, extended) {
         const dayPeriods = getLocaleExtraDayPeriods(locale, form, width);
         const index = rules.findIndex((rule) => {
           if (Array.isArray(rule)) {
-            const [from2, to] = rule;
-            const afterFrom = currentHours >= from2.hours && currentMinutes >= from2.minutes;
+            const [from, to] = rule;
+            const afterFrom = currentHours >= from.hours && currentMinutes >= from.minutes;
             const beforeTo = currentHours < to.hours || currentHours === to.hours && currentMinutes < to.minutes;
-            if (from2.hours < to.hours) {
+            if (from.hours < to.hours) {
               if (afterFrom && beforeTo) {
                 return true;
               }
@@ -1309,7 +1246,7 @@ function getDateTranslation(date, locale, name, width, form, extended) {
         }
       }
       return getLocaleDayPeriods(locale, form, width)[currentHours < 12 ? 0 : 1];
-    case TranslationType.Eras:
+    case 3:
       return getLocaleEraNames(locale, width)[date.getFullYear() <= 0 ? 0 : 1];
     default:
       const unexpected = name;
@@ -1322,13 +1259,13 @@ function timeZoneGetter(width) {
     const minusSign = getLocaleNumberSymbol(locale, NumberSymbol.MinusSign);
     const hours = zone > 0 ? Math.floor(zone / 60) : Math.ceil(zone / 60);
     switch (width) {
-      case ZoneWidth.Short:
+      case 0:
         return (zone >= 0 ? "+" : "") + padNumber(hours, 2, minusSign) + padNumber(Math.abs(zone % 60), 2, minusSign);
-      case ZoneWidth.ShortGMT:
+      case 1:
         return "GMT" + (zone >= 0 ? "+" : "") + padNumber(hours, 1, minusSign);
-      case ZoneWidth.Long:
+      case 2:
         return "GMT" + (zone >= 0 ? "+" : "") + padNumber(hours, 2, minusSign) + ":" + padNumber(Math.abs(zone % 60), 2, minusSign);
-      case ZoneWidth.Extended:
+      case 3:
         if (offset === 0) {
           return "Z";
         } else {
@@ -1380,198 +1317,244 @@ function getDateFormatter(format) {
   }
   let formatter;
   switch (format) {
+    // Era name (AD/BC)
     case "G":
     case "GG":
     case "GGG":
-      formatter = dateStrGetter(TranslationType.Eras, TranslationWidth.Abbreviated);
+      formatter = dateStrGetter(3, TranslationWidth.Abbreviated);
       break;
     case "GGGG":
-      formatter = dateStrGetter(TranslationType.Eras, TranslationWidth.Wide);
+      formatter = dateStrGetter(3, TranslationWidth.Wide);
       break;
     case "GGGGG":
-      formatter = dateStrGetter(TranslationType.Eras, TranslationWidth.Narrow);
+      formatter = dateStrGetter(3, TranslationWidth.Narrow);
       break;
+    // 1 digit representation of the year, e.g. (AD 1 => 1, AD 199 => 199)
     case "y":
-      formatter = dateGetter(DateType.FullYear, 1, 0, false, true);
+      formatter = dateGetter(0, 1, 0, false, true);
       break;
+    // 2 digit representation of the year, padded (00-99). (e.g. AD 2001 => 01, AD 2010 => 10)
     case "yy":
-      formatter = dateGetter(DateType.FullYear, 2, 0, true, true);
+      formatter = dateGetter(0, 2, 0, true, true);
       break;
+    // 3 digit representation of the year, padded (000-999). (e.g. AD 2001 => 01, AD 2010 => 10)
     case "yyy":
-      formatter = dateGetter(DateType.FullYear, 3, 0, false, true);
+      formatter = dateGetter(0, 3, 0, false, true);
       break;
+    // 4 digit representation of the year (e.g. AD 1 => 0001, AD 2010 => 2010)
     case "yyyy":
-      formatter = dateGetter(DateType.FullYear, 4, 0, false, true);
+      formatter = dateGetter(0, 4, 0, false, true);
       break;
+    // 1 digit representation of the week-numbering year, e.g. (AD 1 => 1, AD 199 => 199)
     case "Y":
       formatter = weekNumberingYearGetter(1);
       break;
+    // 2 digit representation of the week-numbering year, padded (00-99). (e.g. AD 2001 => 01, AD
+    // 2010 => 10)
     case "YY":
       formatter = weekNumberingYearGetter(2, true);
       break;
+    // 3 digit representation of the week-numbering year, padded (000-999). (e.g. AD 1 => 001, AD
+    // 2010 => 2010)
     case "YYY":
       formatter = weekNumberingYearGetter(3);
       break;
+    // 4 digit representation of the week-numbering year (e.g. AD 1 => 0001, AD 2010 => 2010)
     case "YYYY":
       formatter = weekNumberingYearGetter(4);
       break;
+    // Month of the year (1-12), numeric
     case "M":
     case "L":
-      formatter = dateGetter(DateType.Month, 1, 1);
+      formatter = dateGetter(1, 1, 1);
       break;
     case "MM":
     case "LL":
-      formatter = dateGetter(DateType.Month, 2, 1);
+      formatter = dateGetter(1, 2, 1);
       break;
+    // Month of the year (January, ...), string, format
     case "MMM":
-      formatter = dateStrGetter(TranslationType.Months, TranslationWidth.Abbreviated);
+      formatter = dateStrGetter(2, TranslationWidth.Abbreviated);
       break;
     case "MMMM":
-      formatter = dateStrGetter(TranslationType.Months, TranslationWidth.Wide);
+      formatter = dateStrGetter(2, TranslationWidth.Wide);
       break;
     case "MMMMM":
-      formatter = dateStrGetter(TranslationType.Months, TranslationWidth.Narrow);
+      formatter = dateStrGetter(2, TranslationWidth.Narrow);
       break;
+    // Month of the year (January, ...), string, standalone
     case "LLL":
-      formatter = dateStrGetter(TranslationType.Months, TranslationWidth.Abbreviated, FormStyle.Standalone);
+      formatter = dateStrGetter(2, TranslationWidth.Abbreviated, FormStyle.Standalone);
       break;
     case "LLLL":
-      formatter = dateStrGetter(TranslationType.Months, TranslationWidth.Wide, FormStyle.Standalone);
+      formatter = dateStrGetter(2, TranslationWidth.Wide, FormStyle.Standalone);
       break;
     case "LLLLL":
-      formatter = dateStrGetter(TranslationType.Months, TranslationWidth.Narrow, FormStyle.Standalone);
+      formatter = dateStrGetter(2, TranslationWidth.Narrow, FormStyle.Standalone);
       break;
+    // Week of the year (1, ... 52)
     case "w":
       formatter = weekGetter(1);
       break;
     case "ww":
       formatter = weekGetter(2);
       break;
+    // Week of the month (1, ...)
     case "W":
       formatter = weekGetter(1, true);
       break;
+    // Day of the month (1-31)
     case "d":
-      formatter = dateGetter(DateType.Date, 1);
+      formatter = dateGetter(2, 1);
       break;
     case "dd":
-      formatter = dateGetter(DateType.Date, 2);
+      formatter = dateGetter(2, 2);
       break;
+    // Day of the Week StandAlone (1, 1, Mon, Monday, M, Mo)
     case "c":
     case "cc":
-      formatter = dateGetter(DateType.Day, 1);
+      formatter = dateGetter(7, 1);
       break;
     case "ccc":
-      formatter = dateStrGetter(TranslationType.Days, TranslationWidth.Abbreviated, FormStyle.Standalone);
+      formatter = dateStrGetter(1, TranslationWidth.Abbreviated, FormStyle.Standalone);
       break;
     case "cccc":
-      formatter = dateStrGetter(TranslationType.Days, TranslationWidth.Wide, FormStyle.Standalone);
+      formatter = dateStrGetter(1, TranslationWidth.Wide, FormStyle.Standalone);
       break;
     case "ccccc":
-      formatter = dateStrGetter(TranslationType.Days, TranslationWidth.Narrow, FormStyle.Standalone);
+      formatter = dateStrGetter(1, TranslationWidth.Narrow, FormStyle.Standalone);
       break;
     case "cccccc":
-      formatter = dateStrGetter(TranslationType.Days, TranslationWidth.Short, FormStyle.Standalone);
+      formatter = dateStrGetter(1, TranslationWidth.Short, FormStyle.Standalone);
       break;
+    // Day of the Week
     case "E":
     case "EE":
     case "EEE":
-      formatter = dateStrGetter(TranslationType.Days, TranslationWidth.Abbreviated);
+      formatter = dateStrGetter(1, TranslationWidth.Abbreviated);
       break;
     case "EEEE":
-      formatter = dateStrGetter(TranslationType.Days, TranslationWidth.Wide);
+      formatter = dateStrGetter(1, TranslationWidth.Wide);
       break;
     case "EEEEE":
-      formatter = dateStrGetter(TranslationType.Days, TranslationWidth.Narrow);
+      formatter = dateStrGetter(1, TranslationWidth.Narrow);
       break;
     case "EEEEEE":
-      formatter = dateStrGetter(TranslationType.Days, TranslationWidth.Short);
+      formatter = dateStrGetter(1, TranslationWidth.Short);
       break;
+    // Generic period of the day (am-pm)
     case "a":
     case "aa":
     case "aaa":
-      formatter = dateStrGetter(TranslationType.DayPeriods, TranslationWidth.Abbreviated);
+      formatter = dateStrGetter(0, TranslationWidth.Abbreviated);
       break;
     case "aaaa":
-      formatter = dateStrGetter(TranslationType.DayPeriods, TranslationWidth.Wide);
+      formatter = dateStrGetter(0, TranslationWidth.Wide);
       break;
     case "aaaaa":
-      formatter = dateStrGetter(TranslationType.DayPeriods, TranslationWidth.Narrow);
+      formatter = dateStrGetter(0, TranslationWidth.Narrow);
       break;
+    // Extended period of the day (midnight, at night, ...), standalone
     case "b":
     case "bb":
     case "bbb":
-      formatter = dateStrGetter(TranslationType.DayPeriods, TranslationWidth.Abbreviated, FormStyle.Standalone, true);
+      formatter = dateStrGetter(0, TranslationWidth.Abbreviated, FormStyle.Standalone, true);
       break;
     case "bbbb":
-      formatter = dateStrGetter(TranslationType.DayPeriods, TranslationWidth.Wide, FormStyle.Standalone, true);
+      formatter = dateStrGetter(0, TranslationWidth.Wide, FormStyle.Standalone, true);
       break;
     case "bbbbb":
-      formatter = dateStrGetter(TranslationType.DayPeriods, TranslationWidth.Narrow, FormStyle.Standalone, true);
+      formatter = dateStrGetter(0, TranslationWidth.Narrow, FormStyle.Standalone, true);
       break;
+    // Extended period of the day (midnight, night, ...), standalone
     case "B":
     case "BB":
     case "BBB":
-      formatter = dateStrGetter(TranslationType.DayPeriods, TranslationWidth.Abbreviated, FormStyle.Format, true);
+      formatter = dateStrGetter(0, TranslationWidth.Abbreviated, FormStyle.Format, true);
       break;
     case "BBBB":
-      formatter = dateStrGetter(TranslationType.DayPeriods, TranslationWidth.Wide, FormStyle.Format, true);
+      formatter = dateStrGetter(0, TranslationWidth.Wide, FormStyle.Format, true);
       break;
     case "BBBBB":
-      formatter = dateStrGetter(TranslationType.DayPeriods, TranslationWidth.Narrow, FormStyle.Format, true);
+      formatter = dateStrGetter(0, TranslationWidth.Narrow, FormStyle.Format, true);
       break;
+    // Hour in AM/PM, (1-12)
     case "h":
-      formatter = dateGetter(DateType.Hours, 1, -12);
+      formatter = dateGetter(3, 1, -12);
       break;
     case "hh":
-      formatter = dateGetter(DateType.Hours, 2, -12);
+      formatter = dateGetter(3, 2, -12);
       break;
+    // Hour of the day (0-23)
     case "H":
-      formatter = dateGetter(DateType.Hours, 1);
+      formatter = dateGetter(3, 1);
       break;
+    // Hour in day, padded (00-23)
     case "HH":
-      formatter = dateGetter(DateType.Hours, 2);
+      formatter = dateGetter(3, 2);
       break;
+    // Minute of the hour (0-59)
     case "m":
-      formatter = dateGetter(DateType.Minutes, 1);
+      formatter = dateGetter(4, 1);
       break;
     case "mm":
-      formatter = dateGetter(DateType.Minutes, 2);
+      formatter = dateGetter(4, 2);
       break;
+    // Second of the minute (0-59)
     case "s":
-      formatter = dateGetter(DateType.Seconds, 1);
+      formatter = dateGetter(5, 1);
       break;
     case "ss":
-      formatter = dateGetter(DateType.Seconds, 2);
+      formatter = dateGetter(5, 2);
       break;
+    // Fractional second
     case "S":
-      formatter = dateGetter(DateType.FractionalSeconds, 1);
+      formatter = dateGetter(6, 1);
       break;
     case "SS":
-      formatter = dateGetter(DateType.FractionalSeconds, 2);
+      formatter = dateGetter(6, 2);
       break;
     case "SSS":
-      formatter = dateGetter(DateType.FractionalSeconds, 3);
+      formatter = dateGetter(6, 3);
       break;
+    // Timezone ISO8601 short format (-0430)
     case "Z":
     case "ZZ":
     case "ZZZ":
-      formatter = timeZoneGetter(ZoneWidth.Short);
+      formatter = timeZoneGetter(
+        0
+        /* ZoneWidth.Short */
+      );
       break;
+    // Timezone ISO8601 extended format (-04:30)
     case "ZZZZZ":
-      formatter = timeZoneGetter(ZoneWidth.Extended);
+      formatter = timeZoneGetter(
+        3
+        /* ZoneWidth.Extended */
+      );
       break;
+    // Timezone GMT short format (GMT+4)
     case "O":
     case "OO":
     case "OOO":
+    // Should be location, but fallback to format O instead because we don't have the data yet
     case "z":
     case "zz":
     case "zzz":
-      formatter = timeZoneGetter(ZoneWidth.ShortGMT);
+      formatter = timeZoneGetter(
+        1
+        /* ZoneWidth.ShortGMT */
+      );
       break;
+    // Timezone GMT long format (GMT+0430)
     case "OOOO":
     case "ZZZZ":
+    // Should be location, but fallback to format O instead because we don't have the data yet
     case "zzzz":
-      formatter = timeZoneGetter(ZoneWidth.Long);
+      formatter = timeZoneGetter(
+        2
+        /* ZoneWidth.Long */
+      );
       break;
     default:
       return null;
@@ -1905,26 +1888,22 @@ function parseIntAutoRadix(text) {
   return result;
 }
 var NgLocalization = class _NgLocalization {
-  static {
-    this.ɵfac = function NgLocalization_Factory(t) {
-      return new (t || _NgLocalization)();
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _NgLocalization,
-      factory: function NgLocalization_Factory(t) {
-        let r = null;
-        if (t) {
-          r = new t();
-        } else {
-          r = ((locale) => new NgLocaleLocalization(locale))(ɵɵinject(LOCALE_ID));
-        }
-        return r;
-      },
-      providedIn: "root"
-    });
-  }
+  static ɵfac = function NgLocalization_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgLocalization)();
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _NgLocalization,
+    factory: function NgLocalization_Factory(__ngFactoryType__) {
+      let __ngConditionalFactory__ = null;
+      if (__ngFactoryType__) {
+        __ngConditionalFactory__ = new __ngFactoryType__();
+      } else {
+        __ngConditionalFactory__ = ((locale) => new NgLocaleLocalization(locale))(ɵɵinject(LOCALE_ID));
+      }
+      return __ngConditionalFactory__;
+    },
+    providedIn: "root"
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgLocalization, [{
@@ -1951,6 +1930,7 @@ function getPluralCategory(value, cases, ngLocalization, locale) {
   throw new Error(`No plural message found for value "${value}"`);
 }
 var NgLocaleLocalization = class _NgLocaleLocalization extends NgLocalization {
+  locale;
   constructor(locale) {
     super();
     this.locale = locale;
@@ -1972,17 +1952,13 @@ var NgLocaleLocalization = class _NgLocaleLocalization extends NgLocalization {
         return "other";
     }
   }
-  static {
-    this.ɵfac = function NgLocaleLocalization_Factory(t) {
-      return new (t || _NgLocaleLocalization)(ɵɵinject(LOCALE_ID));
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _NgLocaleLocalization,
-      factory: _NgLocaleLocalization.ɵfac
-    });
-  }
+  static ɵfac = function NgLocaleLocalization_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgLocaleLocalization)(ɵɵinject(LOCALE_ID));
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _NgLocaleLocalization,
+    factory: _NgLocaleLocalization.ɵfac
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgLocaleLocalization, [{
@@ -2009,11 +1985,14 @@ function parseCookieValue(cookieStr, name) {
 var WS_REGEXP = /\s+/;
 var EMPTY_ARRAY = [];
 var NgClass = class _NgClass {
+  _ngEl;
+  _renderer;
+  initialClasses = EMPTY_ARRAY;
+  rawClass;
+  stateMap = /* @__PURE__ */ new Map();
   constructor(_ngEl, _renderer) {
     this._ngEl = _ngEl;
     this._renderer = _renderer;
-    this.initialClasses = EMPTY_ARRAY;
-    this.stateMap = /* @__PURE__ */ new Map();
   }
   set klass(value) {
     this.initialClasses = value != null ? value.trim().split(WS_REGEXP) : EMPTY_ARRAY;
@@ -2108,29 +2087,23 @@ var NgClass = class _NgClass {
       });
     }
   }
-  static {
-    this.ɵfac = function NgClass_Factory(t) {
-      return new (t || _NgClass)(ɵɵdirectiveInject(ElementRef), ɵɵdirectiveInject(Renderer2));
-    };
-  }
-  static {
-    this.ɵdir = ɵɵdefineDirective({
-      type: _NgClass,
-      selectors: [["", "ngClass", ""]],
-      inputs: {
-        klass: [InputFlags.None, "class", "klass"],
-        ngClass: "ngClass"
-      },
-      standalone: true
-    });
-  }
+  static ɵfac = function NgClass_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgClass)(ɵɵdirectiveInject(ElementRef), ɵɵdirectiveInject(Renderer2));
+  };
+  static ɵdir = ɵɵdefineDirective({
+    type: _NgClass,
+    selectors: [["", "ngClass", ""]],
+    inputs: {
+      klass: [0, "class", "klass"],
+      ngClass: "ngClass"
+    }
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgClass, [{
     type: Directive,
     args: [{
-      selector: "[ngClass]",
-      standalone: true
+      selector: "[ngClass]"
     }]
   }], () => [{
     type: ElementRef
@@ -2148,10 +2121,36 @@ var NgClass = class _NgClass {
   });
 })();
 var NgComponentOutlet = class _NgComponentOutlet {
+  _viewContainerRef;
+  // TODO(crisbeto): this should be `Type<T>`, but doing so broke a few
+  // targets in a TGP so we need to do it in a major version.
+  /** Component that should be rendered in the outlet. */
+  ngComponentOutlet = null;
+  ngComponentOutletInputs;
+  ngComponentOutletInjector;
+  ngComponentOutletContent;
+  ngComponentOutletNgModule;
+  /**
+   * @deprecated This input is deprecated, use `ngComponentOutletNgModule` instead.
+   */
+  ngComponentOutletNgModuleFactory;
+  _componentRef;
+  _moduleRef;
+  /**
+   * A helper data structure that allows us to track inputs that were part of the
+   * ngComponentOutletInputs expression. Tracking inputs is necessary for proper removal of ones
+   * that are no longer referenced.
+   */
+  _inputsUsed = /* @__PURE__ */ new Map();
+  /**
+   * Gets the instance of the currently-rendered component.
+   * Will be null if no component has been rendered.
+   */
+  get componentInstance() {
+    return this._componentRef?.instance ?? null;
+  }
   constructor(_viewContainerRef) {
     this._viewContainerRef = _viewContainerRef;
-    this.ngComponentOutlet = null;
-    this._inputsUsed = /* @__PURE__ */ new Map();
   }
   _needToReCreateNgModuleInstance(changes) {
     return changes["ngComponentOutletNgModule"] !== void 0 || changes["ngComponentOutletNgModuleFactory"] !== void 0;
@@ -2211,34 +2210,30 @@ var NgComponentOutlet = class _NgComponentOutlet {
       }
     }
   }
-  static {
-    this.ɵfac = function NgComponentOutlet_Factory(t) {
-      return new (t || _NgComponentOutlet)(ɵɵdirectiveInject(ViewContainerRef));
-    };
-  }
-  static {
-    this.ɵdir = ɵɵdefineDirective({
-      type: _NgComponentOutlet,
-      selectors: [["", "ngComponentOutlet", ""]],
-      inputs: {
-        ngComponentOutlet: "ngComponentOutlet",
-        ngComponentOutletInputs: "ngComponentOutletInputs",
-        ngComponentOutletInjector: "ngComponentOutletInjector",
-        ngComponentOutletContent: "ngComponentOutletContent",
-        ngComponentOutletNgModule: "ngComponentOutletNgModule",
-        ngComponentOutletNgModuleFactory: "ngComponentOutletNgModuleFactory"
-      },
-      standalone: true,
-      features: [ɵɵNgOnChangesFeature]
-    });
-  }
+  static ɵfac = function NgComponentOutlet_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgComponentOutlet)(ɵɵdirectiveInject(ViewContainerRef));
+  };
+  static ɵdir = ɵɵdefineDirective({
+    type: _NgComponentOutlet,
+    selectors: [["", "ngComponentOutlet", ""]],
+    inputs: {
+      ngComponentOutlet: "ngComponentOutlet",
+      ngComponentOutletInputs: "ngComponentOutletInputs",
+      ngComponentOutletInjector: "ngComponentOutletInjector",
+      ngComponentOutletContent: "ngComponentOutletContent",
+      ngComponentOutletNgModule: "ngComponentOutletNgModule",
+      ngComponentOutletNgModuleFactory: "ngComponentOutletNgModuleFactory"
+    },
+    exportAs: ["ngComponentOutlet"],
+    features: [ɵɵNgOnChangesFeature]
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgComponentOutlet, [{
     type: Directive,
     args: [{
       selector: "[ngComponentOutlet]",
-      standalone: true
+      exportAs: "ngComponentOutlet"
     }]
   }], () => [{
     type: ViewContainerRef
@@ -2268,29 +2263,40 @@ function getParentInjector(injector) {
   return parentNgModule.injector;
 }
 var NgForOfContext = class {
+  $implicit;
+  ngForOf;
+  index;
+  count;
   constructor($implicit, ngForOf, index, count) {
     this.$implicit = $implicit;
     this.ngForOf = ngForOf;
     this.index = index;
     this.count = count;
   }
+  // Indicates whether this is the first item in the collection.
   get first() {
     return this.index === 0;
   }
+  // Indicates whether this is the last item in the collection.
   get last() {
     return this.index === this.count - 1;
   }
+  // Indicates whether an index of this item in the collection is even.
   get even() {
     return this.index % 2 === 0;
   }
+  // Indicates whether an index of this item in the collection is odd.
   get odd() {
     return !this.even;
   }
 };
 var NgForOf = class _NgForOf {
+  _viewContainer;
+  _template;
+  _differs;
   /**
    * The value of the iterable expression, which can be used as a
-   * [template input variable](guide/structural-directives#shorthand).
+   * [template input variable](guide/directives/structural-directives#shorthand).
    */
   set ngForOf(ngForOf) {
     this._ngForOf = ngForOf;
@@ -2323,17 +2329,21 @@ var NgForOf = class _NgForOf {
   get ngForTrackBy() {
     return this._trackByFn;
   }
+  _ngForOf = null;
+  _ngForOfDirty = true;
+  _differ = null;
+  // TODO(issue/24571): remove '!'
+  // waiting for microsoft/typescript#43662 to allow the return type `TrackByFunction|undefined` for
+  // the getter
+  _trackByFn;
   constructor(_viewContainer, _template, _differs) {
     this._viewContainer = _viewContainer;
     this._template = _template;
     this._differs = _differs;
-    this._ngForOf = null;
-    this._ngForOfDirty = true;
-    this._differ = null;
   }
   /**
    * A reference to the template that is stamped out for each item in the iterable.
-   * @see [template reference variable](guide/template-reference-variables)
+   * @see [template reference variable](guide/templates/variables#template-reference-variables)
    */
   set ngForTemplate(value) {
     if (value) {
@@ -2403,30 +2413,24 @@ var NgForOf = class _NgForOf {
   static ngTemplateContextGuard(dir, ctx) {
     return true;
   }
-  static {
-    this.ɵfac = function NgForOf_Factory(t) {
-      return new (t || _NgForOf)(ɵɵdirectiveInject(ViewContainerRef), ɵɵdirectiveInject(TemplateRef), ɵɵdirectiveInject(IterableDiffers));
-    };
-  }
-  static {
-    this.ɵdir = ɵɵdefineDirective({
-      type: _NgForOf,
-      selectors: [["", "ngFor", "", "ngForOf", ""]],
-      inputs: {
-        ngForOf: "ngForOf",
-        ngForTrackBy: "ngForTrackBy",
-        ngForTemplate: "ngForTemplate"
-      },
-      standalone: true
-    });
-  }
+  static ɵfac = function NgForOf_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgForOf)(ɵɵdirectiveInject(ViewContainerRef), ɵɵdirectiveInject(TemplateRef), ɵɵdirectiveInject(IterableDiffers));
+  };
+  static ɵdir = ɵɵdefineDirective({
+    type: _NgForOf,
+    selectors: [["", "ngFor", "", "ngForOf", ""]],
+    inputs: {
+      ngForOf: "ngForOf",
+      ngForTrackBy: "ngForTrackBy",
+      ngForTemplate: "ngForTemplate"
+    }
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgForOf, [{
     type: Directive,
     args: [{
-      selector: "[ngFor][ngForOf]",
-      standalone: true
+      selector: "[ngFor][ngForOf]"
     }]
   }], () => [{
     type: ViewContainerRef
@@ -2453,13 +2457,14 @@ function getTypeName(type) {
   return type["name"] || typeof type;
 }
 var NgIf = class _NgIf {
+  _viewContainer;
+  _context = new NgIfContext();
+  _thenTemplateRef = null;
+  _elseTemplateRef = null;
+  _thenViewRef = null;
+  _elseViewRef = null;
   constructor(_viewContainer, templateRef) {
     this._viewContainer = _viewContainer;
-    this._context = new NgIfContext();
-    this._thenTemplateRef = null;
-    this._elseTemplateRef = null;
-    this._thenViewRef = null;
-    this._elseViewRef = null;
     this._thenTemplateRef = templateRef;
   }
   /**
@@ -2506,6 +2511,17 @@ var NgIf = class _NgIf {
       }
     }
   }
+  /** @internal */
+  static ngIfUseIfTypeGuard;
+  /**
+   * Assert the correct type of the expression bound to the `ngIf` input within the template.
+   *
+   * The presence of this static field is a signal to the Ivy template type check compiler that
+   * when the `NgIf` structural directive renders its template, the type of the expression bound
+   * to `ngIf` should be narrowed in some way. For `NgIf`, the binding expression itself is used to
+   * narrow its type, which allows the strictNullChecks feature of TypeScript to work with `NgIf`.
+   */
+  static ngTemplateGuard_ngIf;
   /**
    * Asserts the correct type of the context for the template that `NgIf` will render.
    *
@@ -2515,30 +2531,24 @@ var NgIf = class _NgIf {
   static ngTemplateContextGuard(dir, ctx) {
     return true;
   }
-  static {
-    this.ɵfac = function NgIf_Factory(t) {
-      return new (t || _NgIf)(ɵɵdirectiveInject(ViewContainerRef), ɵɵdirectiveInject(TemplateRef));
-    };
-  }
-  static {
-    this.ɵdir = ɵɵdefineDirective({
-      type: _NgIf,
-      selectors: [["", "ngIf", ""]],
-      inputs: {
-        ngIf: "ngIf",
-        ngIfThen: "ngIfThen",
-        ngIfElse: "ngIfElse"
-      },
-      standalone: true
-    });
-  }
+  static ɵfac = function NgIf_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgIf)(ɵɵdirectiveInject(ViewContainerRef), ɵɵdirectiveInject(TemplateRef));
+  };
+  static ɵdir = ɵɵdefineDirective({
+    type: _NgIf,
+    selectors: [["", "ngIf", ""]],
+    inputs: {
+      ngIf: "ngIf",
+      ngIfThen: "ngIfThen",
+      ngIfElse: "ngIfElse"
+    }
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgIf, [{
     type: Directive,
     args: [{
-      selector: "[ngIf]",
-      standalone: true
+      selector: "[ngIf]"
     }]
   }], () => [{
     type: ViewContainerRef
@@ -2557,10 +2567,8 @@ var NgIf = class _NgIf {
   });
 })();
 var NgIfContext = class {
-  constructor() {
-    this.$implicit = null;
-    this.ngIf = null;
-  }
+  $implicit = null;
+  ngIf = null;
 };
 function assertTemplate(property, templateRef) {
   const isTemplateRefOrNull = !!(!templateRef || templateRef.createEmbeddedView);
@@ -2568,12 +2576,13 @@ function assertTemplate(property, templateRef) {
     throw new Error(`${property} must be a TemplateRef, but received '${stringify(templateRef)}'.`);
   }
 }
-var NG_SWITCH_USE_STRICT_EQUALS = true;
 var SwitchView = class {
+  _viewContainerRef;
+  _templateRef;
+  _created = false;
   constructor(_viewContainerRef, _templateRef) {
     this._viewContainerRef = _viewContainerRef;
     this._templateRef = _templateRef;
-    this._created = false;
   }
   create() {
     this._created = true;
@@ -2592,13 +2601,12 @@ var SwitchView = class {
   }
 };
 var NgSwitch = class _NgSwitch {
-  constructor() {
-    this._defaultViews = [];
-    this._defaultUsed = false;
-    this._caseCount = 0;
-    this._lastCaseCheckIndex = 0;
-    this._lastCasesMatched = false;
-  }
+  _defaultViews = [];
+  _defaultUsed = false;
+  _caseCount = 0;
+  _lastCaseCheckIndex = 0;
+  _lastCasesMatched = false;
+  _ngSwitch;
   set ngSwitch(newValue) {
     this._ngSwitch = newValue;
     if (this._caseCount === 0) {
@@ -2615,10 +2623,7 @@ var NgSwitch = class _NgSwitch {
   }
   /** @internal */
   _matchCase(value) {
-    const matched = NG_SWITCH_USE_STRICT_EQUALS ? value === this._ngSwitch : value == this._ngSwitch;
-    if ((typeof ngDevMode === "undefined" || ngDevMode) && matched !== (value == this._ngSwitch)) {
-      console.warn(formatRuntimeError(2001, `As of Angular v17 the NgSwitch directive uses strict equality comparison === instead of == to match different cases. Previously the case value "${stringifyValue(value)}" matched switch expression value "${stringifyValue(this._ngSwitch)}", but this is no longer the case with the stricter equality check. Your comparison results return different results using === vs. == and you should adjust your ngSwitch expression and / or values to conform with the strict equality requirements.`));
-    }
+    const matched = value === this._ngSwitch;
     this._lastCasesMatched ||= matched;
     this._lastCaseCheckIndex++;
     if (this._lastCaseCheckIndex === this._caseCount) {
@@ -2636,28 +2641,22 @@ var NgSwitch = class _NgSwitch {
       }
     }
   }
-  static {
-    this.ɵfac = function NgSwitch_Factory(t) {
-      return new (t || _NgSwitch)();
-    };
-  }
-  static {
-    this.ɵdir = ɵɵdefineDirective({
-      type: _NgSwitch,
-      selectors: [["", "ngSwitch", ""]],
-      inputs: {
-        ngSwitch: "ngSwitch"
-      },
-      standalone: true
-    });
-  }
+  static ɵfac = function NgSwitch_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgSwitch)();
+  };
+  static ɵdir = ɵɵdefineDirective({
+    type: _NgSwitch,
+    selectors: [["", "ngSwitch", ""]],
+    inputs: {
+      ngSwitch: "ngSwitch"
+    }
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgSwitch, [{
     type: Directive,
     args: [{
-      selector: "[ngSwitch]",
-      standalone: true
+      selector: "[ngSwitch]"
     }]
   }], null, {
     ngSwitch: [{
@@ -2666,6 +2665,12 @@ var NgSwitch = class _NgSwitch {
   });
 })();
 var NgSwitchCase = class _NgSwitchCase {
+  ngSwitch;
+  _view;
+  /**
+   * Stores the HTML template to be selected on match.
+   */
+  ngSwitchCase;
   constructor(viewContainer, templateRef, ngSwitch) {
     this.ngSwitch = ngSwitch;
     if ((typeof ngDevMode === "undefined" || ngDevMode) && !ngSwitch) {
@@ -2681,28 +2686,22 @@ var NgSwitchCase = class _NgSwitchCase {
   ngDoCheck() {
     this._view.enforceState(this.ngSwitch._matchCase(this.ngSwitchCase));
   }
-  static {
-    this.ɵfac = function NgSwitchCase_Factory(t) {
-      return new (t || _NgSwitchCase)(ɵɵdirectiveInject(ViewContainerRef), ɵɵdirectiveInject(TemplateRef), ɵɵdirectiveInject(NgSwitch, 9));
-    };
-  }
-  static {
-    this.ɵdir = ɵɵdefineDirective({
-      type: _NgSwitchCase,
-      selectors: [["", "ngSwitchCase", ""]],
-      inputs: {
-        ngSwitchCase: "ngSwitchCase"
-      },
-      standalone: true
-    });
-  }
+  static ɵfac = function NgSwitchCase_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgSwitchCase)(ɵɵdirectiveInject(ViewContainerRef), ɵɵdirectiveInject(TemplateRef), ɵɵdirectiveInject(NgSwitch, 9));
+  };
+  static ɵdir = ɵɵdefineDirective({
+    type: _NgSwitchCase,
+    selectors: [["", "ngSwitchCase", ""]],
+    inputs: {
+      ngSwitchCase: "ngSwitchCase"
+    }
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgSwitchCase, [{
     type: Directive,
     args: [{
-      selector: "[ngSwitchCase]",
-      standalone: true
+      selector: "[ngSwitchCase]"
     }]
   }], () => [{
     type: ViewContainerRef
@@ -2728,25 +2727,19 @@ var NgSwitchDefault = class _NgSwitchDefault {
     }
     ngSwitch._addDefault(new SwitchView(viewContainer, templateRef));
   }
-  static {
-    this.ɵfac = function NgSwitchDefault_Factory(t) {
-      return new (t || _NgSwitchDefault)(ɵɵdirectiveInject(ViewContainerRef), ɵɵdirectiveInject(TemplateRef), ɵɵdirectiveInject(NgSwitch, 9));
-    };
-  }
-  static {
-    this.ɵdir = ɵɵdefineDirective({
-      type: _NgSwitchDefault,
-      selectors: [["", "ngSwitchDefault", ""]],
-      standalone: true
-    });
-  }
+  static ɵfac = function NgSwitchDefault_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgSwitchDefault)(ɵɵdirectiveInject(ViewContainerRef), ɵɵdirectiveInject(TemplateRef), ɵɵdirectiveInject(NgSwitch, 9));
+  };
+  static ɵdir = ɵɵdefineDirective({
+    type: _NgSwitchDefault,
+    selectors: [["", "ngSwitchDefault", ""]]
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgSwitchDefault, [{
     type: Directive,
     args: [{
-      selector: "[ngSwitchDefault]",
-      standalone: true
+      selector: "[ngSwitchDefault]"
     }]
   }], () => [{
     type: ViewContainerRef
@@ -2764,13 +2757,12 @@ var NgSwitchDefault = class _NgSwitchDefault {
 function throwNgSwitchProviderNotFoundError(attrName, directiveName) {
   throw new RuntimeError(2e3, `An element with the "${attrName}" attribute (matching the "${directiveName}" directive) must be located inside an element with the "ngSwitch" attribute (matching "NgSwitch" directive)`);
 }
-function stringifyValue(value) {
-  return typeof value === "string" ? `'${value}'` : String(value);
-}
 var NgPlural = class _NgPlural {
+  _localization;
+  _activeView;
+  _caseViews = {};
   constructor(_localization) {
     this._localization = _localization;
-    this._caseViews = {};
   }
   set ngPlural(value) {
     this._updateView(value);
@@ -2793,28 +2785,22 @@ var NgPlural = class _NgPlural {
       this._activeView.create();
     }
   }
-  static {
-    this.ɵfac = function NgPlural_Factory(t) {
-      return new (t || _NgPlural)(ɵɵdirectiveInject(NgLocalization));
-    };
-  }
-  static {
-    this.ɵdir = ɵɵdefineDirective({
-      type: _NgPlural,
-      selectors: [["", "ngPlural", ""]],
-      inputs: {
-        ngPlural: "ngPlural"
-      },
-      standalone: true
-    });
-  }
+  static ɵfac = function NgPlural_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgPlural)(ɵɵdirectiveInject(NgLocalization));
+  };
+  static ɵdir = ɵɵdefineDirective({
+    type: _NgPlural,
+    selectors: [["", "ngPlural", ""]],
+    inputs: {
+      ngPlural: "ngPlural"
+    }
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgPlural, [{
     type: Directive,
     args: [{
-      selector: "[ngPlural]",
-      standalone: true
+      selector: "[ngPlural]"
     }]
   }], () => [{
     type: NgLocalization
@@ -2825,30 +2811,25 @@ var NgPlural = class _NgPlural {
   });
 })();
 var NgPluralCase = class _NgPluralCase {
+  value;
   constructor(value, template, viewContainer, ngPlural) {
     this.value = value;
     const isANumber = !isNaN(Number(value));
     ngPlural.addCase(isANumber ? `=${value}` : value, new SwitchView(viewContainer, template));
   }
-  static {
-    this.ɵfac = function NgPluralCase_Factory(t) {
-      return new (t || _NgPluralCase)(ɵɵinjectAttribute("ngPluralCase"), ɵɵdirectiveInject(TemplateRef), ɵɵdirectiveInject(ViewContainerRef), ɵɵdirectiveInject(NgPlural, 1));
-    };
-  }
-  static {
-    this.ɵdir = ɵɵdefineDirective({
-      type: _NgPluralCase,
-      selectors: [["", "ngPluralCase", ""]],
-      standalone: true
-    });
-  }
+  static ɵfac = function NgPluralCase_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgPluralCase)(ɵɵinjectAttribute("ngPluralCase"), ɵɵdirectiveInject(TemplateRef), ɵɵdirectiveInject(ViewContainerRef), ɵɵdirectiveInject(NgPlural, 1));
+  };
+  static ɵdir = ɵɵdefineDirective({
+    type: _NgPluralCase,
+    selectors: [["", "ngPluralCase", ""]]
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgPluralCase, [{
     type: Directive,
     args: [{
-      selector: "[ngPluralCase]",
-      standalone: true
+      selector: "[ngPluralCase]"
     }]
   }], () => [{
     type: void 0,
@@ -2868,12 +2849,15 @@ var NgPluralCase = class _NgPluralCase {
   }], null);
 })();
 var NgStyle = class _NgStyle {
+  _ngEl;
+  _differs;
+  _renderer;
+  _ngStyle = null;
+  _differ = null;
   constructor(_ngEl, _differs, _renderer) {
     this._ngEl = _ngEl;
     this._differs = _differs;
     this._renderer = _renderer;
-    this._ngStyle = null;
-    this._differ = null;
   }
   set ngStyle(values) {
     this._ngStyle = values;
@@ -2903,28 +2887,22 @@ var NgStyle = class _NgStyle {
     changes.forEachAddedItem((record) => this._setStyle(record.key, record.currentValue));
     changes.forEachChangedItem((record) => this._setStyle(record.key, record.currentValue));
   }
-  static {
-    this.ɵfac = function NgStyle_Factory(t) {
-      return new (t || _NgStyle)(ɵɵdirectiveInject(ElementRef), ɵɵdirectiveInject(KeyValueDiffers), ɵɵdirectiveInject(Renderer2));
-    };
-  }
-  static {
-    this.ɵdir = ɵɵdefineDirective({
-      type: _NgStyle,
-      selectors: [["", "ngStyle", ""]],
-      inputs: {
-        ngStyle: "ngStyle"
-      },
-      standalone: true
-    });
-  }
+  static ɵfac = function NgStyle_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgStyle)(ɵɵdirectiveInject(ElementRef), ɵɵdirectiveInject(KeyValueDiffers), ɵɵdirectiveInject(Renderer2));
+  };
+  static ɵdir = ɵɵdefineDirective({
+    type: _NgStyle,
+    selectors: [["", "ngStyle", ""]],
+    inputs: {
+      ngStyle: "ngStyle"
+    }
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgStyle, [{
     type: Directive,
     args: [{
-      selector: "[ngStyle]",
-      standalone: true
+      selector: "[ngStyle]"
     }]
   }], () => [{
     type: ElementRef
@@ -2940,12 +2918,23 @@ var NgStyle = class _NgStyle {
   });
 })();
 var NgTemplateOutlet = class _NgTemplateOutlet {
+  _viewContainerRef;
+  _viewRef = null;
+  /**
+   * A context object to attach to the {@link EmbeddedViewRef}. This should be an
+   * object, the object's keys will be available for binding by the local template `let`
+   * declarations.
+   * Using the key `$implicit` in the context object will set its value as default.
+   */
+  ngTemplateOutletContext = null;
+  /**
+   * A string defining the template reference and optionally the context object for the template.
+   */
+  ngTemplateOutlet = null;
+  /** Injector to be used within the embedded view. */
+  ngTemplateOutletInjector = null;
   constructor(_viewContainerRef) {
     this._viewContainerRef = _viewContainerRef;
-    this._viewRef = null;
-    this.ngTemplateOutletContext = null;
-    this.ngTemplateOutlet = null;
-    this.ngTemplateOutletInjector = null;
   }
   ngOnChanges(changes) {
     if (this._shouldRecreateView(changes)) {
@@ -2992,31 +2981,25 @@ var NgTemplateOutlet = class _NgTemplateOutlet {
       }
     });
   }
-  static {
-    this.ɵfac = function NgTemplateOutlet_Factory(t) {
-      return new (t || _NgTemplateOutlet)(ɵɵdirectiveInject(ViewContainerRef));
-    };
-  }
-  static {
-    this.ɵdir = ɵɵdefineDirective({
-      type: _NgTemplateOutlet,
-      selectors: [["", "ngTemplateOutlet", ""]],
-      inputs: {
-        ngTemplateOutletContext: "ngTemplateOutletContext",
-        ngTemplateOutlet: "ngTemplateOutlet",
-        ngTemplateOutletInjector: "ngTemplateOutletInjector"
-      },
-      standalone: true,
-      features: [ɵɵNgOnChangesFeature]
-    });
-  }
+  static ɵfac = function NgTemplateOutlet_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgTemplateOutlet)(ɵɵdirectiveInject(ViewContainerRef));
+  };
+  static ɵdir = ɵɵdefineDirective({
+    type: _NgTemplateOutlet,
+    selectors: [["", "ngTemplateOutlet", ""]],
+    inputs: {
+      ngTemplateOutletContext: "ngTemplateOutletContext",
+      ngTemplateOutlet: "ngTemplateOutlet",
+      ngTemplateOutletInjector: "ngTemplateOutletInjector"
+    },
+    features: [ɵɵNgOnChangesFeature]
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgTemplateOutlet, [{
     type: Directive,
     args: [{
-      selector: "[ngTemplateOutlet]",
-      standalone: true
+      selector: "[ngTemplateOutlet]"
     }]
   }], () => [{
     type: ViewContainerRef
@@ -3061,12 +3044,13 @@ var PromiseStrategy = class {
 var _promiseStrategy = new PromiseStrategy();
 var _subscribableStrategy = new SubscribableStrategy();
 var AsyncPipe = class _AsyncPipe {
+  _ref;
+  _latestValue = null;
+  markForCheckOnValueUpdate = true;
+  _subscription = null;
+  _obj = null;
+  _strategy = null;
   constructor(ref) {
-    this._latestValue = null;
-    this.markForCheckOnValueUpdate = true;
-    this._subscription = null;
-    this._obj = null;
-    this._strategy = null;
     this._ref = ref;
   }
   ngOnDestroy() {
@@ -3121,27 +3105,21 @@ var AsyncPipe = class _AsyncPipe {
       }
     }
   }
-  static {
-    this.ɵfac = function AsyncPipe_Factory(t) {
-      return new (t || _AsyncPipe)(ɵɵdirectiveInject(ChangeDetectorRef, 16));
-    };
-  }
-  static {
-    this.ɵpipe = ɵɵdefinePipe({
-      name: "async",
-      type: _AsyncPipe,
-      pure: false,
-      standalone: true
-    });
-  }
+  static ɵfac = function AsyncPipe_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _AsyncPipe)(ɵɵdirectiveInject(ChangeDetectorRef, 16));
+  };
+  static ɵpipe = ɵɵdefinePipe({
+    name: "async",
+    type: _AsyncPipe,
+    pure: false
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AsyncPipe, [{
     type: Pipe,
     args: [{
       name: "async",
-      pure: false,
-      standalone: true
+      pure: false
     }]
   }], () => [{
     type: ChangeDetectorRef
@@ -3155,26 +3133,20 @@ var LowerCasePipe = class _LowerCasePipe {
     }
     return value.toLowerCase();
   }
-  static {
-    this.ɵfac = function LowerCasePipe_Factory(t) {
-      return new (t || _LowerCasePipe)();
-    };
-  }
-  static {
-    this.ɵpipe = ɵɵdefinePipe({
-      name: "lowercase",
-      type: _LowerCasePipe,
-      pure: true,
-      standalone: true
-    });
-  }
+  static ɵfac = function LowerCasePipe_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _LowerCasePipe)();
+  };
+  static ɵpipe = ɵɵdefinePipe({
+    name: "lowercase",
+    type: _LowerCasePipe,
+    pure: true
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(LowerCasePipe, [{
     type: Pipe,
     args: [{
-      name: "lowercase",
-      standalone: true
+      name: "lowercase"
     }]
   }], null, null);
 })();
@@ -3187,26 +3159,20 @@ var TitleCasePipe = class _TitleCasePipe {
     }
     return value.replace(unicodeWordMatch, (txt) => txt[0].toUpperCase() + txt.slice(1).toLowerCase());
   }
-  static {
-    this.ɵfac = function TitleCasePipe_Factory(t) {
-      return new (t || _TitleCasePipe)();
-    };
-  }
-  static {
-    this.ɵpipe = ɵɵdefinePipe({
-      name: "titlecase",
-      type: _TitleCasePipe,
-      pure: true,
-      standalone: true
-    });
-  }
+  static ɵfac = function TitleCasePipe_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _TitleCasePipe)();
+  };
+  static ɵpipe = ɵɵdefinePipe({
+    name: "titlecase",
+    type: _TitleCasePipe,
+    pure: true
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(TitleCasePipe, [{
     type: Pipe,
     args: [{
-      name: "titlecase",
-      standalone: true
+      name: "titlecase"
     }]
   }], null, null);
 })();
@@ -3218,26 +3184,20 @@ var UpperCasePipe = class _UpperCasePipe {
     }
     return value.toUpperCase();
   }
-  static {
-    this.ɵfac = function UpperCasePipe_Factory(t) {
-      return new (t || _UpperCasePipe)();
-    };
-  }
-  static {
-    this.ɵpipe = ɵɵdefinePipe({
-      name: "uppercase",
-      type: _UpperCasePipe,
-      pure: true,
-      standalone: true
-    });
-  }
+  static ɵfac = function UpperCasePipe_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _UpperCasePipe)();
+  };
+  static ɵpipe = ɵɵdefinePipe({
+    name: "uppercase",
+    type: _UpperCasePipe,
+    pure: true
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UpperCasePipe, [{
     type: Pipe,
     args: [{
-      name: "uppercase",
-      standalone: true
+      name: "uppercase"
     }]
   }], null, null);
 })();
@@ -3245,6 +3205,9 @@ var DEFAULT_DATE_FORMAT = "mediumDate";
 var DATE_PIPE_DEFAULT_TIMEZONE = new InjectionToken(ngDevMode ? "DATE_PIPE_DEFAULT_TIMEZONE" : "");
 var DATE_PIPE_DEFAULT_OPTIONS = new InjectionToken(ngDevMode ? "DATE_PIPE_DEFAULT_OPTIONS" : "");
 var DatePipe = class _DatePipe {
+  locale;
+  defaultTimezone;
+  defaultOptions;
   constructor(locale, defaultTimezone, defaultOptions) {
     this.locale = locale;
     this.defaultTimezone = defaultTimezone;
@@ -3260,26 +3223,20 @@ var DatePipe = class _DatePipe {
       throw invalidPipeArgumentError(_DatePipe, error.message);
     }
   }
-  static {
-    this.ɵfac = function DatePipe_Factory(t) {
-      return new (t || _DatePipe)(ɵɵdirectiveInject(LOCALE_ID, 16), ɵɵdirectiveInject(DATE_PIPE_DEFAULT_TIMEZONE, 24), ɵɵdirectiveInject(DATE_PIPE_DEFAULT_OPTIONS, 24));
-    };
-  }
-  static {
-    this.ɵpipe = ɵɵdefinePipe({
-      name: "date",
-      type: _DatePipe,
-      pure: true,
-      standalone: true
-    });
-  }
+  static ɵfac = function DatePipe_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _DatePipe)(ɵɵdirectiveInject(LOCALE_ID, 16), ɵɵdirectiveInject(DATE_PIPE_DEFAULT_TIMEZONE, 24), ɵɵdirectiveInject(DATE_PIPE_DEFAULT_OPTIONS, 24));
+  };
+  static ɵpipe = ɵɵdefinePipe({
+    name: "date",
+    type: _DatePipe,
+    pure: true
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DatePipe, [{
     type: Pipe,
     args: [{
-      name: "date",
-      standalone: true
+      name: "date"
     }]
   }], () => [{
     type: void 0,
@@ -3307,6 +3264,7 @@ var DatePipe = class _DatePipe {
 })();
 var _INTERPOLATION_REGEXP = /#/g;
 var I18nPluralPipe = class _I18nPluralPipe {
+  _localization;
   constructor(_localization) {
     this._localization = _localization;
   }
@@ -3325,26 +3283,20 @@ var I18nPluralPipe = class _I18nPluralPipe {
     const key = getPluralCategory(value, Object.keys(pluralMap), this._localization, locale);
     return pluralMap[key].replace(_INTERPOLATION_REGEXP, value.toString());
   }
-  static {
-    this.ɵfac = function I18nPluralPipe_Factory(t) {
-      return new (t || _I18nPluralPipe)(ɵɵdirectiveInject(NgLocalization, 16));
-    };
-  }
-  static {
-    this.ɵpipe = ɵɵdefinePipe({
-      name: "i18nPlural",
-      type: _I18nPluralPipe,
-      pure: true,
-      standalone: true
-    });
-  }
+  static ɵfac = function I18nPluralPipe_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _I18nPluralPipe)(ɵɵdirectiveInject(NgLocalization, 16));
+  };
+  static ɵpipe = ɵɵdefinePipe({
+    name: "i18nPlural",
+    type: _I18nPluralPipe,
+    pure: true
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(I18nPluralPipe, [{
     type: Pipe,
     args: [{
-      name: "i18nPlural",
-      standalone: true
+      name: "i18nPlural"
     }]
   }], () => [{
     type: NgLocalization
@@ -3369,26 +3321,20 @@ var I18nSelectPipe = class _I18nSelectPipe {
     }
     return "";
   }
-  static {
-    this.ɵfac = function I18nSelectPipe_Factory(t) {
-      return new (t || _I18nSelectPipe)();
-    };
-  }
-  static {
-    this.ɵpipe = ɵɵdefinePipe({
-      name: "i18nSelect",
-      type: _I18nSelectPipe,
-      pure: true,
-      standalone: true
-    });
-  }
+  static ɵfac = function I18nSelectPipe_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _I18nSelectPipe)();
+  };
+  static ɵpipe = ɵɵdefinePipe({
+    name: "i18nSelect",
+    type: _I18nSelectPipe,
+    pure: true
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(I18nSelectPipe, [{
     type: Pipe,
     args: [{
-      name: "i18nSelect",
-      standalone: true
+      name: "i18nSelect"
     }]
   }], null, null);
 })();
@@ -3399,27 +3345,21 @@ var JsonPipe = class _JsonPipe {
   transform(value) {
     return JSON.stringify(value, null, 2);
   }
-  static {
-    this.ɵfac = function JsonPipe_Factory(t) {
-      return new (t || _JsonPipe)();
-    };
-  }
-  static {
-    this.ɵpipe = ɵɵdefinePipe({
-      name: "json",
-      type: _JsonPipe,
-      pure: false,
-      standalone: true
-    });
-  }
+  static ɵfac = function JsonPipe_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _JsonPipe)();
+  };
+  static ɵpipe = ɵɵdefinePipe({
+    name: "json",
+    type: _JsonPipe,
+    pure: false
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(JsonPipe, [{
     type: Pipe,
     args: [{
       name: "json",
-      pure: false,
-      standalone: true
+      pure: false
     }]
   }], null, null);
 })();
@@ -3430,11 +3370,13 @@ function makeKeyValuePair(key, value) {
   };
 }
 var KeyValuePipe = class _KeyValuePipe {
+  differs;
   constructor(differs) {
     this.differs = differs;
-    this.keyValues = [];
-    this.compareFn = defaultComparator;
   }
+  differ;
+  keyValues = [];
+  compareFn = defaultComparator;
   transform(input, compareFn = defaultComparator) {
     if (!input || !(input instanceof Map) && typeof input !== "object") {
       return null;
@@ -3449,32 +3391,28 @@ var KeyValuePipe = class _KeyValuePipe {
       });
     }
     if (differChanges || compareFnChanged) {
-      this.keyValues.sort(compareFn);
+      if (compareFn) {
+        this.keyValues.sort(compareFn);
+      }
       this.compareFn = compareFn;
     }
     return this.keyValues;
   }
-  static {
-    this.ɵfac = function KeyValuePipe_Factory(t) {
-      return new (t || _KeyValuePipe)(ɵɵdirectiveInject(KeyValueDiffers, 16));
-    };
-  }
-  static {
-    this.ɵpipe = ɵɵdefinePipe({
-      name: "keyvalue",
-      type: _KeyValuePipe,
-      pure: false,
-      standalone: true
-    });
-  }
+  static ɵfac = function KeyValuePipe_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _KeyValuePipe)(ɵɵdirectiveInject(KeyValueDiffers, 16));
+  };
+  static ɵpipe = ɵɵdefinePipe({
+    name: "keyvalue",
+    type: _KeyValuePipe,
+    pure: false
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(KeyValuePipe, [{
     type: Pipe,
     args: [{
       name: "keyvalue",
-      pure: false,
-      standalone: true
+      pure: false
     }]
   }], () => [{
     type: KeyValueDiffers
@@ -3484,10 +3422,8 @@ function defaultComparator(keyValueA, keyValueB) {
   const a = keyValueA.key;
   const b = keyValueB.key;
   if (a === b) return 0;
-  if (a === void 0) return 1;
-  if (b === void 0) return -1;
-  if (a === null) return 1;
-  if (b === null) return -1;
+  if (a == null) return 1;
+  if (b == null) return -1;
   if (typeof a == "string" && typeof b == "string") {
     return a < b ? -1 : 1;
   }
@@ -3502,16 +3438,10 @@ function defaultComparator(keyValueA, keyValueB) {
   return aString == bString ? 0 : aString < bString ? -1 : 1;
 }
 var DecimalPipe = class _DecimalPipe {
+  _locale;
   constructor(_locale) {
     this._locale = _locale;
   }
-  /**
-   * @param value The value to be formatted.
-   * @param digitsInfo Sets digit and decimal representation.
-   * [See more](#digitsinfo).
-   * @param locale Specifies what locale format rules to use.
-   * [See more](#locale).
-   */
   transform(value, digitsInfo, locale) {
     if (!isValue(value)) return null;
     locale ||= this._locale;
@@ -3522,26 +3452,20 @@ var DecimalPipe = class _DecimalPipe {
       throw invalidPipeArgumentError(_DecimalPipe, error.message);
     }
   }
-  static {
-    this.ɵfac = function DecimalPipe_Factory(t) {
-      return new (t || _DecimalPipe)(ɵɵdirectiveInject(LOCALE_ID, 16));
-    };
-  }
-  static {
-    this.ɵpipe = ɵɵdefinePipe({
-      name: "number",
-      type: _DecimalPipe,
-      pure: true,
-      standalone: true
-    });
-  }
+  static ɵfac = function DecimalPipe_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _DecimalPipe)(ɵɵdirectiveInject(LOCALE_ID, 16));
+  };
+  static ɵpipe = ɵɵdefinePipe({
+    name: "number",
+    type: _DecimalPipe,
+    pure: true
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DecimalPipe, [{
     type: Pipe,
     args: [{
-      name: "number",
-      standalone: true
+      name: "number"
     }]
   }], () => [{
     type: void 0,
@@ -3552,6 +3476,7 @@ var DecimalPipe = class _DecimalPipe {
   }], null);
 })();
 var PercentPipe = class _PercentPipe {
+  _locale;
   constructor(_locale) {
     this._locale = _locale;
   }
@@ -3569,7 +3494,7 @@ var PercentPipe = class _PercentPipe {
    * Default is `0`.
    * @param locale A locale code for the locale format rules to use.
    * When not supplied, uses the value of `LOCALE_ID`, which is `en-US` by default.
-   * See [Setting your app locale](guide/i18n-common-locale-id).
+   * See [Setting your app locale](guide/i18n/locale-id).
    */
   transform(value, digitsInfo, locale) {
     if (!isValue(value)) return null;
@@ -3581,26 +3506,20 @@ var PercentPipe = class _PercentPipe {
       throw invalidPipeArgumentError(_PercentPipe, error.message);
     }
   }
-  static {
-    this.ɵfac = function PercentPipe_Factory(t) {
-      return new (t || _PercentPipe)(ɵɵdirectiveInject(LOCALE_ID, 16));
-    };
-  }
-  static {
-    this.ɵpipe = ɵɵdefinePipe({
-      name: "percent",
-      type: _PercentPipe,
-      pure: true,
-      standalone: true
-    });
-  }
+  static ɵfac = function PercentPipe_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _PercentPipe)(ɵɵdirectiveInject(LOCALE_ID, 16));
+  };
+  static ɵpipe = ɵɵdefinePipe({
+    name: "percent",
+    type: _PercentPipe,
+    pure: true
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(PercentPipe, [{
     type: Pipe,
     args: [{
-      name: "percent",
-      standalone: true
+      name: "percent"
     }]
   }], () => [{
     type: void 0,
@@ -3611,43 +3530,12 @@ var PercentPipe = class _PercentPipe {
   }], null);
 })();
 var CurrencyPipe = class _CurrencyPipe {
+  _locale;
+  _defaultCurrencyCode;
   constructor(_locale, _defaultCurrencyCode = "USD") {
     this._locale = _locale;
     this._defaultCurrencyCode = _defaultCurrencyCode;
   }
-  /**
-   *
-   * @param value The number to be formatted as currency.
-   * @param currencyCode The [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currency code,
-   * such as `USD` for the US dollar and `EUR` for the euro. The default currency code can be
-   * configured using the `DEFAULT_CURRENCY_CODE` injection token.
-   * @param display The format for the currency indicator. One of the following:
-   *   - `code`: Show the code (such as `USD`).
-   *   - `symbol`(default): Show the symbol (such as `$`).
-   *   - `symbol-narrow`: Use the narrow symbol for locales that have two symbols for their
-   * currency.
-   * For example, the Canadian dollar CAD has the symbol `CA$` and the symbol-narrow `$`. If the
-   * locale has no narrow symbol, uses the standard symbol for the locale.
-   *   - String: Use the given string value instead of a code or a symbol.
-   * For example, an empty string will suppress the currency & symbol.
-   *   - Boolean (marked deprecated in v5): `true` for symbol and false for `code`.
-   *
-   * @param digitsInfo Decimal representation options, specified by a string
-   * in the following format:<br>
-   * <code>{minIntegerDigits}.{minFractionDigits}-{maxFractionDigits}</code>.
-   *   - `minIntegerDigits`: The minimum number of integer digits before the decimal point.
-   * Default is `1`.
-   *   - `minFractionDigits`: The minimum number of digits after the decimal point.
-   * Default is `2`.
-   *   - `maxFractionDigits`: The maximum number of digits after the decimal point.
-   * Default is `2`.
-   * If not provided, the number will be formatted with the proper amount of digits,
-   * depending on what the [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) specifies.
-   * For example, the Canadian dollar has 2 digits, whereas the Chilean peso has none.
-   * @param locale A locale code for the locale format rules to use.
-   * When not supplied, uses the value of `LOCALE_ID`, which is `en-US` by default.
-   * See [Setting your app locale](guide/i18n-common-locale-id).
-   */
   transform(value, currencyCode = this._defaultCurrencyCode, display = "symbol", digitsInfo, locale) {
     if (!isValue(value)) return null;
     locale ||= this._locale;
@@ -3672,26 +3560,20 @@ var CurrencyPipe = class _CurrencyPipe {
       throw invalidPipeArgumentError(_CurrencyPipe, error.message);
     }
   }
-  static {
-    this.ɵfac = function CurrencyPipe_Factory(t) {
-      return new (t || _CurrencyPipe)(ɵɵdirectiveInject(LOCALE_ID, 16), ɵɵdirectiveInject(DEFAULT_CURRENCY_CODE, 16));
-    };
-  }
-  static {
-    this.ɵpipe = ɵɵdefinePipe({
-      name: "currency",
-      type: _CurrencyPipe,
-      pure: true,
-      standalone: true
-    });
-  }
+  static ɵfac = function CurrencyPipe_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _CurrencyPipe)(ɵɵdirectiveInject(LOCALE_ID, 16), ɵɵdirectiveInject(DEFAULT_CURRENCY_CODE, 16));
+  };
+  static ɵpipe = ɵɵdefinePipe({
+    name: "currency",
+    type: _CurrencyPipe,
+    pure: true
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CurrencyPipe, [{
     type: Pipe,
     args: [{
-      name: "currency",
-      standalone: true
+      name: "currency"
     }]
   }], () => [{
     type: void 0,
@@ -3722,55 +3604,41 @@ function strToNumber(value) {
 var SlicePipe = class _SlicePipe {
   transform(value, start, end) {
     if (value == null) return null;
-    if (!this.supports(value)) {
+    const supports = typeof value === "string" || Array.isArray(value);
+    if (!supports) {
       throw invalidPipeArgumentError(_SlicePipe, value);
     }
     return value.slice(start, end);
   }
-  supports(obj) {
-    return typeof obj === "string" || Array.isArray(obj);
-  }
-  static {
-    this.ɵfac = function SlicePipe_Factory(t) {
-      return new (t || _SlicePipe)();
-    };
-  }
-  static {
-    this.ɵpipe = ɵɵdefinePipe({
-      name: "slice",
-      type: _SlicePipe,
-      pure: false,
-      standalone: true
-    });
-  }
+  static ɵfac = function SlicePipe_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _SlicePipe)();
+  };
+  static ɵpipe = ɵɵdefinePipe({
+    name: "slice",
+    type: _SlicePipe,
+    pure: false
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SlicePipe, [{
     type: Pipe,
     args: [{
       name: "slice",
-      pure: false,
-      standalone: true
+      pure: false
     }]
   }], null, null);
 })();
 var COMMON_PIPES = [AsyncPipe, UpperCasePipe, LowerCasePipe, JsonPipe, SlicePipe, DecimalPipe, PercentPipe, TitleCasePipe, CurrencyPipe, DatePipe, I18nPluralPipe, I18nSelectPipe, KeyValuePipe];
 var CommonModule = class _CommonModule {
-  static {
-    this.ɵfac = function CommonModule_Factory(t) {
-      return new (t || _CommonModule)();
-    };
-  }
-  static {
-    this.ɵmod = ɵɵdefineNgModule({
-      type: _CommonModule,
-      imports: [NgClass, NgComponentOutlet, NgForOf, NgIf, NgTemplateOutlet, NgStyle, NgSwitch, NgSwitchCase, NgSwitchDefault, NgPlural, NgPluralCase, AsyncPipe, UpperCasePipe, LowerCasePipe, JsonPipe, SlicePipe, DecimalPipe, PercentPipe, TitleCasePipe, CurrencyPipe, DatePipe, I18nPluralPipe, I18nSelectPipe, KeyValuePipe],
-      exports: [NgClass, NgComponentOutlet, NgForOf, NgIf, NgTemplateOutlet, NgStyle, NgSwitch, NgSwitchCase, NgSwitchDefault, NgPlural, NgPluralCase, AsyncPipe, UpperCasePipe, LowerCasePipe, JsonPipe, SlicePipe, DecimalPipe, PercentPipe, TitleCasePipe, CurrencyPipe, DatePipe, I18nPluralPipe, I18nSelectPipe, KeyValuePipe]
-    });
-  }
-  static {
-    this.ɵinj = ɵɵdefineInjector({});
-  }
+  static ɵfac = function CommonModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _CommonModule)();
+  };
+  static ɵmod = ɵɵdefineNgModule({
+    type: _CommonModule,
+    imports: [NgClass, NgComponentOutlet, NgForOf, NgIf, NgTemplateOutlet, NgStyle, NgSwitch, NgSwitchCase, NgSwitchDefault, NgPlural, NgPluralCase, AsyncPipe, UpperCasePipe, LowerCasePipe, JsonPipe, SlicePipe, DecimalPipe, PercentPipe, TitleCasePipe, CurrencyPipe, DatePipe, I18nPluralPipe, I18nSelectPipe, KeyValuePipe],
+    exports: [NgClass, NgComponentOutlet, NgForOf, NgIf, NgTemplateOutlet, NgStyle, NgSwitch, NgSwitchCase, NgSwitchDefault, NgPlural, NgPluralCase, AsyncPipe, UpperCasePipe, LowerCasePipe, JsonPipe, SlicePipe, DecimalPipe, PercentPipe, TitleCasePipe, CurrencyPipe, DatePipe, I18nPluralPipe, I18nSelectPipe, KeyValuePipe]
+  });
+  static ɵinj = ɵɵdefineInjector({});
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CommonModule, [{
@@ -3789,21 +3657,27 @@ function isPlatformBrowser(platformId) {
 function isPlatformServer(platformId) {
   return platformId === PLATFORM_SERVER_ID;
 }
-var VERSION = new Version("17.3.12");
+var VERSION = new Version("19.2.0");
 var ViewportScroller = class _ViewportScroller {
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
+  // De-sugared tree-shakable injection
+  // See #23917
+  /** @nocollapse */
+  static ɵprov = (
+    /** @pureOrBreakMyCode */
+    ɵɵdefineInjectable({
       token: _ViewportScroller,
       providedIn: "root",
-      factory: () => isPlatformBrowser(inject(PLATFORM_ID)) ? new BrowserViewportScroller(inject(DOCUMENT), window) : new NullViewportScroller()
-    });
-  }
+      factory: () => false ? new NullViewportScroller() : new BrowserViewportScroller(inject(DOCUMENT), window)
+    })
+  );
 };
 var BrowserViewportScroller = class {
+  document;
+  window;
+  offset = () => [0, 0];
   constructor(document, window2) {
     this.document = document;
     this.window = window2;
-    this.offset = () => [0, 0];
   }
   /**
    * Configures the top offset used when scrolling to an anchor.
@@ -3891,34 +3765,6 @@ function findAnchorFromDocument(document, target) {
   }
   return null;
 }
-var NullViewportScroller = class {
-  /**
-   * Empty implementation
-   */
-  setOffset(offset) {
-  }
-  /**
-   * Empty implementation
-   */
-  getScrollPosition() {
-    return [0, 0];
-  }
-  /**
-   * Empty implementation
-   */
-  scrollToPosition(position) {
-  }
-  /**
-   * Empty implementation
-   */
-  scrollToAnchor(anchor) {
-  }
-  /**
-   * Empty implementation
-   */
-  setHistoryScrollRestoration(scrollRestoration) {
-  }
-};
 var XhrFactory = class {
 };
 var PLACEHOLDER_QUALITY = "20";
@@ -4007,6 +3853,9 @@ function createCloudinaryUrl(path, config) {
   if (config.width) {
     params += `,w_${config.width}`;
   }
+  if (config.loaderParams?.["rounded"]) {
+    params += `,r_max`;
+  }
   return `${path}/image/upload/${params}/${config.src}`;
 }
 var imageKitLoaderInfo = {
@@ -4072,13 +3921,15 @@ function assertDevMode(checkName) {
   }
 }
 var LCPImageObserver = class _LCPImageObserver {
+  // Map of full image URLs -> original `ngSrc` values.
+  images = /* @__PURE__ */ new Map();
+  window = null;
+  observer = null;
   constructor() {
-    this.images = /* @__PURE__ */ new Map();
-    this.window = null;
-    this.observer = null;
+    const isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
     assertDevMode("LCP checker");
     const win = inject(DOCUMENT).defaultView;
-    if (typeof win !== "undefined" && typeof PerformanceObserver !== "undefined") {
+    if (isBrowser && typeof PerformanceObserver !== "undefined") {
       this.window = win;
       this.observer = this.initPerformanceObserver();
     }
@@ -4126,6 +3977,7 @@ var LCPImageObserver = class _LCPImageObserver {
     this.images.delete(getUrl(rewrittenSrc, this.window).href);
   }
   updateImage(originalSrc, newSrc) {
+    if (!this.observer) return;
     const originalUrl = getUrl(originalSrc, this.window).href;
     const img = this.images.get(originalUrl);
     if (img) {
@@ -4139,18 +3991,14 @@ var LCPImageObserver = class _LCPImageObserver {
     this.observer.disconnect();
     this.images.clear();
   }
-  static {
-    this.ɵfac = function LCPImageObserver_Factory(t) {
-      return new (t || _LCPImageObserver)();
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _LCPImageObserver,
-      factory: _LCPImageObserver.ɵfac,
-      providedIn: "root"
-    });
-  }
+  static ɵfac = function LCPImageObserver_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _LCPImageObserver)();
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _LCPImageObserver,
+    factory: _LCPImageObserver.ɵfac,
+    providedIn: "root"
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(LCPImageObserver, [{
@@ -4171,17 +4019,20 @@ function logModifiedWarning(ngSrc) {
 var INTERNAL_PRECONNECT_CHECK_BLOCKLIST = /* @__PURE__ */ new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
 var PRECONNECT_CHECK_BLOCKLIST = new InjectionToken(ngDevMode ? "PRECONNECT_CHECK_BLOCKLIST" : "");
 var PreconnectLinkChecker = class _PreconnectLinkChecker {
+  document = inject(DOCUMENT);
+  /**
+   * Set of <link rel="preconnect"> tags found on this page.
+   * The `null` value indicates that there was no DOM query operation performed.
+   */
+  preconnectLinks = null;
+  /*
+   * Keep track of all already seen origin URLs to avoid repeating the same check.
+   */
+  alreadySeen = /* @__PURE__ */ new Set();
+  window = this.document.defaultView;
+  blocklist = new Set(INTERNAL_PRECONNECT_CHECK_BLOCKLIST);
   constructor() {
-    this.document = inject(DOCUMENT);
-    this.preconnectLinks = null;
-    this.alreadySeen = /* @__PURE__ */ new Set();
-    this.window = null;
-    this.blocklist = new Set(INTERNAL_PRECONNECT_CHECK_BLOCKLIST);
     assertDevMode("preconnect link checker");
-    const win = this.document.defaultView;
-    if (typeof win !== "undefined") {
-      this.window = win;
-    }
     const blocklist = inject(PRECONNECT_CHECK_BLOCKLIST, {
       optional: true
     });
@@ -4206,7 +4057,7 @@ var PreconnectLinkChecker = class _PreconnectLinkChecker {
    * @param originalNgSrc ngSrc value
    */
   assertPreconnect(rewrittenSrc, originalNgSrc) {
-    if (!this.window) return;
+    if (false) return;
     const imgUrl = getUrl(rewrittenSrc, this.window);
     if (this.blocklist.has(imgUrl.hostname) || this.alreadySeen.has(imgUrl.origin)) return;
     this.alreadySeen.add(imgUrl.origin);
@@ -4230,18 +4081,14 @@ var PreconnectLinkChecker = class _PreconnectLinkChecker {
     this.preconnectLinks?.clear();
     this.alreadySeen.clear();
   }
-  static {
-    this.ɵfac = function PreconnectLinkChecker_Factory(t) {
-      return new (t || _PreconnectLinkChecker)();
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _PreconnectLinkChecker,
-      factory: _PreconnectLinkChecker.ɵfac,
-      providedIn: "root"
-    });
-  }
+  static ɵfac = function PreconnectLinkChecker_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _PreconnectLinkChecker)();
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _PreconnectLinkChecker,
+    factory: _PreconnectLinkChecker.ɵfac,
+    providedIn: "root"
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(PreconnectLinkChecker, [{
@@ -4257,15 +4104,13 @@ function deepForEach(input, fn) {
   }
 }
 var DEFAULT_PRELOADED_IMAGES_LIMIT = 5;
-var PRELOADED_IMAGES = new InjectionToken("NG_OPTIMIZED_PRELOADED_IMAGES", {
+var PRELOADED_IMAGES = new InjectionToken(typeof ngDevMode === "undefined" || ngDevMode ? "NG_OPTIMIZED_PRELOADED_IMAGES" : "", {
   providedIn: "root",
   factory: () => /* @__PURE__ */ new Set()
 });
 var PreloadLinkCreator = class _PreloadLinkCreator {
-  constructor() {
-    this.preloadedImages = inject(PRELOADED_IMAGES);
-    this.document = inject(DOCUMENT);
-  }
+  preloadedImages = inject(PRELOADED_IMAGES);
+  document = inject(DOCUMENT);
   /**
    * @description Add a preload `<link>` to the `<head>` of the `index.html` that is served from the
    * server while using Angular Universal and SSR to kick off image loads for high priority images.
@@ -4305,18 +4150,14 @@ var PreloadLinkCreator = class _PreloadLinkCreator {
     }
     renderer.appendChild(this.document.head, preload);
   }
-  static {
-    this.ɵfac = function PreloadLinkCreator_Factory(t) {
-      return new (t || _PreloadLinkCreator)();
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _PreloadLinkCreator,
-      factory: _PreloadLinkCreator.ɵfac,
-      providedIn: "root"
-    });
-  }
+  static ɵfac = function PreloadLinkCreator_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _PreloadLinkCreator)();
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _PreloadLinkCreator,
+    factory: _PreloadLinkCreator.ɵfac,
+    providedIn: "root"
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(PreloadLinkCreator, [{
@@ -4338,23 +4179,120 @@ var OVERSIZED_IMAGE_TOLERANCE = 1e3;
 var FIXED_SRCSET_WIDTH_LIMIT = 1920;
 var FIXED_SRCSET_HEIGHT_LIMIT = 1080;
 var PLACEHOLDER_BLUR_AMOUNT = 15;
+var PLACEHOLDER_DIMENSION_LIMIT = 1e3;
 var DATA_URL_WARN_LIMIT = 4e3;
 var DATA_URL_ERROR_LIMIT = 1e4;
 var BUILT_IN_LOADERS = [imgixLoaderInfo, imageKitLoaderInfo, cloudinaryLoaderInfo, netlifyLoaderInfo];
+var PRIORITY_COUNT_THRESHOLD = 10;
+var IMGS_WITH_PRIORITY_ATTR_COUNT = 0;
 var NgOptimizedImage = class _NgOptimizedImage {
+  imageLoader = inject(IMAGE_LOADER);
+  config = processConfig(inject(IMAGE_CONFIG));
+  renderer = inject(Renderer2);
+  imgElement = inject(ElementRef).nativeElement;
+  injector = inject(Injector);
+  // An LCP image observer should be injected only in development mode.
+  // Do not assign it to `null` to avoid having a redundant property in the production bundle.
+  lcpObserver;
+  /**
+   * Calculate the rewritten `src` once and store it.
+   * This is needed to avoid repetitive calculations and make sure the directive cleanup in the
+   * `ngOnDestroy` does not rely on the `IMAGE_LOADER` logic (which in turn can rely on some other
+   * instance that might be already destroyed).
+   */
+  _renderedSrc = null;
+  /**
+   * Name of the source image.
+   * Image name will be processed by the image loader and the final URL will be applied as the `src`
+   * property of the image.
+   */
+  ngSrc;
+  /**
+   * A comma separated list of width or density descriptors.
+   * The image name will be taken from `ngSrc` and combined with the list of width or density
+   * descriptors to generate the final `srcset` property of the image.
+   *
+   * Example:
+   * ```html
+   * <img ngSrc="hello.jpg" ngSrcset="100w, 200w" />  =>
+   * <img src="path/hello.jpg" srcset="path/hello.jpg?w=100 100w, path/hello.jpg?w=200 200w" />
+   * ```
+   */
+  ngSrcset;
+  /**
+   * The base `sizes` attribute passed through to the `<img>` element.
+   * Providing sizes causes the image to create an automatic responsive srcset.
+   */
+  sizes;
+  /**
+   * For responsive images: the intrinsic width of the image in pixels.
+   * For fixed size images: the desired rendered width of the image in pixels.
+   */
+  width;
+  /**
+   * For responsive images: the intrinsic height of the image in pixels.
+   * For fixed size images: the desired rendered height of the image in pixels.
+   */
+  height;
+  /**
+   * The desired loading behavior (lazy, eager, or auto). Defaults to `lazy`,
+   * which is recommended for most images.
+   *
+   * Warning: Setting images as loading="eager" or loading="auto" marks them
+   * as non-priority images and can hurt loading performance. For images which
+   * may be the LCP element, use the `priority` attribute instead of `loading`.
+   */
+  loading;
+  /**
+   * Indicates whether this image should have a high priority.
+   */
+  priority = false;
+  /**
+   * Data to pass through to custom loaders.
+   */
+  loaderParams;
+  /**
+   * Disables automatic srcset generation for this image.
+   */
+  disableOptimizedSrcset = false;
+  /**
+   * Sets the image to "fill mode", which eliminates the height/width requirement and adds
+   * styles such that the image fills its containing element.
+   */
+  fill = false;
+  /**
+   * A URL or data URL for an image to be used as a placeholder while this image loads.
+   */
+  placeholder;
+  /**
+   * Configuration object for placeholder settings. Options:
+   *   * blur: Setting this to false disables the automatic CSS blur.
+   */
+  placeholderConfig;
+  /**
+   * Value of the `src` attribute if set on the host `<img>` element.
+   * This input is exclusively read to assert that `src` is not set in conflict
+   * with `ngSrc` and that images don't start to load until a lazy loading strategy is set.
+   * @internal
+   */
+  src;
+  /**
+   * Value of the `srcset` attribute if set on the host `<img>` element.
+   * This input is exclusively read to assert that `srcset` is not set in conflict
+   * with `ngSrcset` and that images don't start to load until a lazy loading strategy is set.
+   * @internal
+   */
+  srcset;
   constructor() {
-    this.imageLoader = inject(IMAGE_LOADER);
-    this.config = processConfig(inject(IMAGE_CONFIG));
-    this.renderer = inject(Renderer2);
-    this.imgElement = inject(ElementRef).nativeElement;
-    this.injector = inject(Injector);
-    this.isServer = isPlatformServer(inject(PLATFORM_ID));
-    this.preloadLinkCreator = inject(PreloadLinkCreator);
-    this.lcpObserver = ngDevMode ? this.injector.get(LCPImageObserver) : null;
-    this._renderedSrc = null;
-    this.priority = false;
-    this.disableOptimizedSrcset = false;
-    this.fill = false;
+    if (ngDevMode) {
+      this.lcpObserver = this.injector.get(LCPImageObserver);
+      const destroyRef = inject(DestroyRef);
+      destroyRef.onDestroy(() => {
+        if (!this.priority && this._renderedSrc !== null) {
+          this.lcpObserver.unregisterImage(this._renderedSrc);
+        }
+      });
+    }
   }
   /** @nodoc */
   ngOnInit() {
@@ -4390,15 +4328,16 @@ var NgOptimizedImage = class _NgOptimizedImage {
       assertNotMissingBuiltInLoader(this.ngSrc, this.imageLoader);
       assertNoNgSrcsetWithoutLoader(this, this.imageLoader);
       assertNoLoaderParamsWithoutLoader(this, this.imageLoader);
-      if (this.lcpObserver !== null) {
-        const ngZone2 = this.injector.get(NgZone);
-        ngZone2.runOutsideAngular(() => {
-          this.lcpObserver.registerImage(this.getRewrittenSrc(), this.ngSrc, this.priority);
-        });
-      }
+      ngZone.runOutsideAngular(() => {
+        this.lcpObserver.registerImage(this.getRewrittenSrc(), this.ngSrc, this.priority);
+      });
       if (this.priority) {
         const checker = this.injector.get(PreconnectLinkChecker);
         checker.assertPreconnect(this.getRewrittenSrc(), this.ngSrc);
+        if (true) {
+          const applicationRef = this.injector.get(ApplicationRef);
+          assetPriorityCountBelowThreshold(applicationRef);
+        }
       }
     }
     if (this.placeholder) {
@@ -4418,10 +4357,19 @@ var NgOptimizedImage = class _NgOptimizedImage {
     this.setHostAttribute("ng-img", "true");
     const rewrittenSrcset = this.updateSrcAndSrcset();
     if (this.sizes) {
-      this.setHostAttribute("sizes", this.sizes);
+      if (this.getLoadingBehavior() === "lazy") {
+        this.setHostAttribute("sizes", "auto, " + this.sizes);
+      } else {
+        this.setHostAttribute("sizes", this.sizes);
+      }
+    } else {
+      if (this.ngSrcset && VALID_WIDTH_DESCRIPTOR_SRCSET.test(this.ngSrcset) && this.getLoadingBehavior() === "lazy") {
+        this.setHostAttribute("sizes", "auto, 100vw");
+      }
     }
-    if (this.isServer && this.priority) {
-      this.preloadLinkCreator.createPreloadLinkTag(this.renderer, this.getRewrittenSrc(), rewrittenSrcset, this.sizes);
+    if (false) {
+      const preloadLinkCreator = this.injector.get(PreloadLinkCreator);
+      preloadLinkCreator.createPreloadLinkTag(this.renderer, this.getRewrittenSrc(), rewrittenSrcset, this.sizes);
     }
   }
   /** @nodoc */
@@ -4432,13 +4380,18 @@ var NgOptimizedImage = class _NgOptimizedImage {
     if (changes["ngSrc"] && !changes["ngSrc"].isFirstChange()) {
       const oldSrc = this._renderedSrc;
       this.updateSrcAndSrcset(true);
-      const newSrc = this._renderedSrc;
-      if (this.lcpObserver !== null && oldSrc && newSrc && oldSrc !== newSrc) {
-        const ngZone = this.injector.get(NgZone);
-        ngZone.runOutsideAngular(() => {
-          this.lcpObserver?.updateImage(oldSrc, newSrc);
-        });
+      if (ngDevMode) {
+        const newSrc = this._renderedSrc;
+        if (oldSrc && newSrc && oldSrc !== newSrc) {
+          const ngZone = this.injector.get(NgZone);
+          ngZone.runOutsideAngular(() => {
+            this.lcpObserver.updateImage(oldSrc, newSrc);
+          });
+        }
       }
+    }
+    if (ngDevMode && changes["placeholder"]?.currentValue && true && true) {
+      assertPlaceholderDimensions(this, this.imgElement);
     }
   }
   callImageLoader(configWithoutCustomParams) {
@@ -4545,7 +4498,7 @@ var NgOptimizedImage = class _NgOptimizedImage {
         width: placeholderResolution,
         isPlaceholder: true
       })})`;
-    } else if (typeof placeholderInput === "string" && placeholderInput.startsWith("data:")) {
+    } else if (typeof placeholderInput === "string") {
       return `url(${placeholderInput})`;
     }
     return null;
@@ -4570,59 +4523,46 @@ var NgOptimizedImage = class _NgOptimizedImage {
     };
     const removeLoadListenerFn = this.renderer.listen(img, "load", callback);
     const removeErrorListenerFn = this.renderer.listen(img, "error", callback);
-  }
-  /** @nodoc */
-  ngOnDestroy() {
-    if (ngDevMode) {
-      if (!this.priority && this._renderedSrc !== null && this.lcpObserver !== null) {
-        this.lcpObserver.unregisterImage(this._renderedSrc);
-      }
-    }
+    callOnLoadIfImageIsLoaded(img, callback);
   }
   setHostAttribute(name, value) {
     this.renderer.setAttribute(this.imgElement, name, value);
   }
-  static {
-    this.ɵfac = function NgOptimizedImage_Factory(t) {
-      return new (t || _NgOptimizedImage)();
-    };
-  }
-  static {
-    this.ɵdir = ɵɵdefineDirective({
-      type: _NgOptimizedImage,
-      selectors: [["img", "ngSrc", ""]],
-      hostVars: 18,
-      hostBindings: function NgOptimizedImage_HostBindings(rf, ctx) {
-        if (rf & 2) {
-          ɵɵstyleProp("position", ctx.fill ? "absolute" : null)("width", ctx.fill ? "100%" : null)("height", ctx.fill ? "100%" : null)("inset", ctx.fill ? "0" : null)("background-size", ctx.placeholder ? "cover" : null)("background-position", ctx.placeholder ? "50% 50%" : null)("background-repeat", ctx.placeholder ? "no-repeat" : null)("background-image", ctx.placeholder ? ctx.generatePlaceholder(ctx.placeholder) : null)("filter", ctx.placeholder && ctx.shouldBlurPlaceholder(ctx.placeholderConfig) ? "blur(15px)" : null);
-        }
-      },
-      inputs: {
-        ngSrc: [InputFlags.HasDecoratorInputTransform, "ngSrc", "ngSrc", unwrapSafeUrl],
-        ngSrcset: "ngSrcset",
-        sizes: "sizes",
-        width: [InputFlags.HasDecoratorInputTransform, "width", "width", numberAttribute],
-        height: [InputFlags.HasDecoratorInputTransform, "height", "height", numberAttribute],
-        loading: "loading",
-        priority: [InputFlags.HasDecoratorInputTransform, "priority", "priority", booleanAttribute],
-        loaderParams: "loaderParams",
-        disableOptimizedSrcset: [InputFlags.HasDecoratorInputTransform, "disableOptimizedSrcset", "disableOptimizedSrcset", booleanAttribute],
-        fill: [InputFlags.HasDecoratorInputTransform, "fill", "fill", booleanAttribute],
-        placeholder: [InputFlags.HasDecoratorInputTransform, "placeholder", "placeholder", booleanOrDataUrlAttribute],
-        placeholderConfig: "placeholderConfig",
-        src: "src",
-        srcset: "srcset"
-      },
-      standalone: true,
-      features: [ɵɵInputTransformsFeature, ɵɵNgOnChangesFeature]
-    });
-  }
+  static ɵfac = function NgOptimizedImage_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgOptimizedImage)();
+  };
+  static ɵdir = ɵɵdefineDirective({
+    type: _NgOptimizedImage,
+    selectors: [["img", "ngSrc", ""]],
+    hostVars: 18,
+    hostBindings: function NgOptimizedImage_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        ɵɵstyleProp("position", ctx.fill ? "absolute" : null)("width", ctx.fill ? "100%" : null)("height", ctx.fill ? "100%" : null)("inset", ctx.fill ? "0" : null)("background-size", ctx.placeholder ? "cover" : null)("background-position", ctx.placeholder ? "50% 50%" : null)("background-repeat", ctx.placeholder ? "no-repeat" : null)("background-image", ctx.placeholder ? ctx.generatePlaceholder(ctx.placeholder) : null)("filter", ctx.placeholder && ctx.shouldBlurPlaceholder(ctx.placeholderConfig) ? "blur(15px)" : null);
+      }
+    },
+    inputs: {
+      ngSrc: [2, "ngSrc", "ngSrc", unwrapSafeUrl],
+      ngSrcset: "ngSrcset",
+      sizes: "sizes",
+      width: [2, "width", "width", numberAttribute],
+      height: [2, "height", "height", numberAttribute],
+      loading: "loading",
+      priority: [2, "priority", "priority", booleanAttribute],
+      loaderParams: "loaderParams",
+      disableOptimizedSrcset: [2, "disableOptimizedSrcset", "disableOptimizedSrcset", booleanAttribute],
+      fill: [2, "fill", "fill", booleanAttribute],
+      placeholder: [2, "placeholder", "placeholder", booleanOrUrlAttribute],
+      placeholderConfig: "placeholderConfig",
+      src: "src",
+      srcset: "srcset"
+    },
+    features: [ɵɵNgOnChangesFeature]
+  });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgOptimizedImage, [{
     type: Directive,
     args: [{
-      standalone: true,
       selector: "img[ngSrc]",
       host: {
         "[style.position]": 'fill ? "absolute" : null',
@@ -4636,7 +4576,7 @@ var NgOptimizedImage = class _NgOptimizedImage {
         "[style.filter]": `placeholder && shouldBlurPlaceholder(placeholderConfig) ? "blur(${PLACEHOLDER_BLUR_AMOUNT}px)" : null`
       }
     }]
-  }], null, {
+  }], () => [], {
     ngSrc: [{
       type: Input,
       args: [{
@@ -4689,7 +4629,7 @@ var NgOptimizedImage = class _NgOptimizedImage {
     placeholder: [{
       type: Input,
       args: [{
-        transform: booleanOrDataUrlAttribute
+        transform: booleanOrUrlAttribute
       }]
     }],
     placeholderConfig: [{
@@ -4800,7 +4740,7 @@ function postInitInputChangeError(dir, inputName) {
   } else {
     reason = `Changing the \`${inputName}\` would have no effect on the underlying image element, because the resource loading has already occurred.`;
   }
-  return new RuntimeError(2953, `${imgDirectiveDetails(dir.ngSrc)} \`${inputName}\` was updated after initialization. The NgOptimizedImage directive will not react to this input change. ${reason} To fix this, either switch \`${inputName}\` to a static value or wrap the image element in an *ngIf that is gated on the necessary value.`);
+  return new RuntimeError(2953, `${imgDirectiveDetails(dir.ngSrc)} \`${inputName}\` was updated after initialization. The NgOptimizedImage directive will not react to this input change. ${reason} To fix this, either switch \`${inputName}\` to a static value or wrap the image element in an @if that is gated on the necessary value.`);
 }
 function assertNoPostInitInputChange(dir, changes, inputs) {
   inputs.forEach((input) => {
@@ -4823,7 +4763,7 @@ function assertGreaterThanZero(dir, inputValue, inputName) {
   }
 }
 function assertNoImageDistortion(dir, img, renderer) {
-  const removeLoadListenerFn = renderer.listen(img, "load", () => {
+  const callback = () => {
     removeLoadListenerFn();
     removeErrorListenerFn();
     const computedStyle = window.getComputedStyle(img);
@@ -4871,11 +4811,13 @@ Recommended intrinsic image size: ${recommendedWidth}w x ${recommendedHeight}h.
 Note: Recommended intrinsic image size is calculated assuming a maximum DPR of ${RECOMMENDED_SRCSET_DENSITY_CAP}. To improve loading time, resize the image or consider using the "ngSrcset" and "sizes" attributes.`));
       }
     }
-  });
+  };
+  const removeLoadListenerFn = renderer.listen(img, "load", callback);
   const removeErrorListenerFn = renderer.listen(img, "error", () => {
     removeLoadListenerFn();
     removeErrorListenerFn();
   });
+  callOnLoadIfImageIsLoaded(img, callback);
 }
 function assertNonEmptyWidthAndHeight(dir) {
   let missingAttributes = [];
@@ -4891,18 +4833,20 @@ function assertEmptyWidthAndHeight(dir) {
   }
 }
 function assertNonZeroRenderedHeight(dir, img, renderer) {
-  const removeLoadListenerFn = renderer.listen(img, "load", () => {
+  const callback = () => {
     removeLoadListenerFn();
     removeErrorListenerFn();
     const renderedHeight = img.clientHeight;
     if (dir.fill && renderedHeight === 0) {
       console.warn(formatRuntimeError(2952, `${imgDirectiveDetails(dir.ngSrc)} the height of the fill-mode image is zero. This is likely because the containing element does not have the CSS 'position' property set to one of the following: "relative", "fixed", or "absolute". To fix this problem, make sure the container element has the CSS 'position' property defined and the height of the element is not zero.`));
     }
-  });
+  };
+  const removeLoadListenerFn = renderer.listen(img, "load", callback);
   const removeErrorListenerFn = renderer.listen(img, "error", () => {
     removeLoadListenerFn();
     removeErrorListenerFn();
   });
+  callOnLoadIfImageIsLoaded(img, callback);
 }
 function assertValidLoadingInput(dir) {
   if (dir.loading && dir.priority) {
@@ -4937,6 +4881,32 @@ function assertNoLoaderParamsWithoutLoader(dir, imageLoader) {
     console.warn(formatRuntimeError(2963, `${imgDirectiveDetails(dir.ngSrc)} the \`loaderParams\` attribute is present but no image loader is configured (i.e. the default one is being used), which means that the loaderParams data will not be consumed and will not affect the URL. To fix this, provide a custom loader or remove the \`loaderParams\` attribute from the image.`));
   }
 }
+function assetPriorityCountBelowThreshold(appRef) {
+  return __async(this, null, function* () {
+    if (IMGS_WITH_PRIORITY_ATTR_COUNT === 0) {
+      IMGS_WITH_PRIORITY_ATTR_COUNT++;
+      yield appRef.whenStable();
+      if (IMGS_WITH_PRIORITY_ATTR_COUNT > PRIORITY_COUNT_THRESHOLD) {
+        console.warn(formatRuntimeError(2966, `NgOptimizedImage: The "priority" attribute is set to true more than ${PRIORITY_COUNT_THRESHOLD} times (${IMGS_WITH_PRIORITY_ATTR_COUNT} times). Marking too many images as "high" priority can hurt your application's LCP (https://web.dev/lcp). "Priority" should only be set on the image expected to be the page's LCP element.`));
+      }
+    } else {
+      IMGS_WITH_PRIORITY_ATTR_COUNT++;
+    }
+  });
+}
+function assertPlaceholderDimensions(dir, imgElement) {
+  const computedStyle = window.getComputedStyle(imgElement);
+  let renderedWidth = parseFloat(computedStyle.getPropertyValue("width"));
+  let renderedHeight = parseFloat(computedStyle.getPropertyValue("height"));
+  if (renderedWidth > PLACEHOLDER_DIMENSION_LIMIT || renderedHeight > PLACEHOLDER_DIMENSION_LIMIT) {
+    console.warn(formatRuntimeError(2967, `${imgDirectiveDetails(dir.ngSrc)} it uses a placeholder image, but at least one of the dimensions attribute (height or width) exceeds the limit of ${PLACEHOLDER_DIMENSION_LIMIT}px. To fix this, use a smaller image as a placeholder.`));
+  }
+}
+function callOnLoadIfImageIsLoaded(img, callback) {
+  if (img.complete && img.naturalWidth) {
+    callback();
+  }
+}
 function round(input) {
   return Number.isInteger(input) ? input : input.toFixed(2);
 }
@@ -4946,2249 +4916,11 @@ function unwrapSafeUrl(value) {
   }
   return unwrapSafeValue(value);
 }
-function booleanOrDataUrlAttribute(value) {
-  if (typeof value === "string" && value.startsWith(`data:`)) {
+function booleanOrUrlAttribute(value) {
+  if (typeof value === "string" && value !== "true" && value !== "false" && value !== "") {
     return value;
   }
   return booleanAttribute(value);
-}
-
-// node_modules/@angular/common/fesm2022/http.mjs
-var HttpHandler = class {
-};
-var HttpBackend = class {
-};
-var HttpHeaders = class _HttpHeaders {
-  /**  Constructs a new HTTP header object with the given values.*/
-  constructor(headers) {
-    this.normalizedNames = /* @__PURE__ */ new Map();
-    this.lazyUpdate = null;
-    if (!headers) {
-      this.headers = /* @__PURE__ */ new Map();
-    } else if (typeof headers === "string") {
-      this.lazyInit = () => {
-        this.headers = /* @__PURE__ */ new Map();
-        headers.split("\n").forEach((line) => {
-          const index = line.indexOf(":");
-          if (index > 0) {
-            const name = line.slice(0, index);
-            const key = name.toLowerCase();
-            const value = line.slice(index + 1).trim();
-            this.maybeSetNormalizedName(name, key);
-            if (this.headers.has(key)) {
-              this.headers.get(key).push(value);
-            } else {
-              this.headers.set(key, [value]);
-            }
-          }
-        });
-      };
-    } else if (typeof Headers !== "undefined" && headers instanceof Headers) {
-      this.headers = /* @__PURE__ */ new Map();
-      headers.forEach((values, name) => {
-        this.setHeaderEntries(name, values);
-      });
-    } else {
-      this.lazyInit = () => {
-        if (typeof ngDevMode === "undefined" || ngDevMode) {
-          assertValidHeaders(headers);
-        }
-        this.headers = /* @__PURE__ */ new Map();
-        Object.entries(headers).forEach(([name, values]) => {
-          this.setHeaderEntries(name, values);
-        });
-      };
-    }
-  }
-  /**
-   * Checks for existence of a given header.
-   *
-   * @param name The header name to check for existence.
-   *
-   * @returns True if the header exists, false otherwise.
-   */
-  has(name) {
-    this.init();
-    return this.headers.has(name.toLowerCase());
-  }
-  /**
-   * Retrieves the first value of a given header.
-   *
-   * @param name The header name.
-   *
-   * @returns The value string if the header exists, null otherwise
-   */
-  get(name) {
-    this.init();
-    const values = this.headers.get(name.toLowerCase());
-    return values && values.length > 0 ? values[0] : null;
-  }
-  /**
-   * Retrieves the names of the headers.
-   *
-   * @returns A list of header names.
-   */
-  keys() {
-    this.init();
-    return Array.from(this.normalizedNames.values());
-  }
-  /**
-   * Retrieves a list of values for a given header.
-   *
-   * @param name The header name from which to retrieve values.
-   *
-   * @returns A string of values if the header exists, null otherwise.
-   */
-  getAll(name) {
-    this.init();
-    return this.headers.get(name.toLowerCase()) || null;
-  }
-  /**
-   * Appends a new value to the existing set of values for a header
-   * and returns them in a clone of the original instance.
-   *
-   * @param name The header name for which to append the values.
-   * @param value The value to append.
-   *
-   * @returns A clone of the HTTP headers object with the value appended to the given header.
-   */
-  append(name, value) {
-    return this.clone({
-      name,
-      value,
-      op: "a"
-    });
-  }
-  /**
-   * Sets or modifies a value for a given header in a clone of the original instance.
-   * If the header already exists, its value is replaced with the given value
-   * in the returned object.
-   *
-   * @param name The header name.
-   * @param value The value or values to set or override for the given header.
-   *
-   * @returns A clone of the HTTP headers object with the newly set header value.
-   */
-  set(name, value) {
-    return this.clone({
-      name,
-      value,
-      op: "s"
-    });
-  }
-  /**
-   * Deletes values for a given header in a clone of the original instance.
-   *
-   * @param name The header name.
-   * @param value The value or values to delete for the given header.
-   *
-   * @returns A clone of the HTTP headers object with the given value deleted.
-   */
-  delete(name, value) {
-    return this.clone({
-      name,
-      value,
-      op: "d"
-    });
-  }
-  maybeSetNormalizedName(name, lcName) {
-    if (!this.normalizedNames.has(lcName)) {
-      this.normalizedNames.set(lcName, name);
-    }
-  }
-  init() {
-    if (!!this.lazyInit) {
-      if (this.lazyInit instanceof _HttpHeaders) {
-        this.copyFrom(this.lazyInit);
-      } else {
-        this.lazyInit();
-      }
-      this.lazyInit = null;
-      if (!!this.lazyUpdate) {
-        this.lazyUpdate.forEach((update) => this.applyUpdate(update));
-        this.lazyUpdate = null;
-      }
-    }
-  }
-  copyFrom(other) {
-    other.init();
-    Array.from(other.headers.keys()).forEach((key) => {
-      this.headers.set(key, other.headers.get(key));
-      this.normalizedNames.set(key, other.normalizedNames.get(key));
-    });
-  }
-  clone(update) {
-    const clone = new _HttpHeaders();
-    clone.lazyInit = !!this.lazyInit && this.lazyInit instanceof _HttpHeaders ? this.lazyInit : this;
-    clone.lazyUpdate = (this.lazyUpdate || []).concat([update]);
-    return clone;
-  }
-  applyUpdate(update) {
-    const key = update.name.toLowerCase();
-    switch (update.op) {
-      case "a":
-      case "s":
-        let value = update.value;
-        if (typeof value === "string") {
-          value = [value];
-        }
-        if (value.length === 0) {
-          return;
-        }
-        this.maybeSetNormalizedName(update.name, key);
-        const base = (update.op === "a" ? this.headers.get(key) : void 0) || [];
-        base.push(...value);
-        this.headers.set(key, base);
-        break;
-      case "d":
-        const toDelete = update.value;
-        if (!toDelete) {
-          this.headers.delete(key);
-          this.normalizedNames.delete(key);
-        } else {
-          let existing = this.headers.get(key);
-          if (!existing) {
-            return;
-          }
-          existing = existing.filter((value2) => toDelete.indexOf(value2) === -1);
-          if (existing.length === 0) {
-            this.headers.delete(key);
-            this.normalizedNames.delete(key);
-          } else {
-            this.headers.set(key, existing);
-          }
-        }
-        break;
-    }
-  }
-  setHeaderEntries(name, values) {
-    const headerValues = (Array.isArray(values) ? values : [values]).map((value) => value.toString());
-    const key = name.toLowerCase();
-    this.headers.set(key, headerValues);
-    this.maybeSetNormalizedName(name, key);
-  }
-  /**
-   * @internal
-   */
-  forEach(fn) {
-    this.init();
-    Array.from(this.normalizedNames.keys()).forEach((key) => fn(this.normalizedNames.get(key), this.headers.get(key)));
-  }
-};
-function assertValidHeaders(headers) {
-  for (const [key, value] of Object.entries(headers)) {
-    if (!(typeof value === "string" || typeof value === "number") && !Array.isArray(value)) {
-      throw new Error(`Unexpected value of the \`${key}\` header provided. Expecting either a string, a number or an array, but got: \`${value}\`.`);
-    }
-  }
-}
-var HttpUrlEncodingCodec = class {
-  /**
-   * Encodes a key name for a URL parameter or query-string.
-   * @param key The key name.
-   * @returns The encoded key name.
-   */
-  encodeKey(key) {
-    return standardEncoding(key);
-  }
-  /**
-   * Encodes the value of a URL parameter or query-string.
-   * @param value The value.
-   * @returns The encoded value.
-   */
-  encodeValue(value) {
-    return standardEncoding(value);
-  }
-  /**
-   * Decodes an encoded URL parameter or query-string key.
-   * @param key The encoded key name.
-   * @returns The decoded key name.
-   */
-  decodeKey(key) {
-    return decodeURIComponent(key);
-  }
-  /**
-   * Decodes an encoded URL parameter or query-string value.
-   * @param value The encoded value.
-   * @returns The decoded value.
-   */
-  decodeValue(value) {
-    return decodeURIComponent(value);
-  }
-};
-function paramParser(rawParams, codec) {
-  const map2 = /* @__PURE__ */ new Map();
-  if (rawParams.length > 0) {
-    const params = rawParams.replace(/^\?/, "").split("&");
-    params.forEach((param) => {
-      const eqIdx = param.indexOf("=");
-      const [key, val] = eqIdx == -1 ? [codec.decodeKey(param), ""] : [codec.decodeKey(param.slice(0, eqIdx)), codec.decodeValue(param.slice(eqIdx + 1))];
-      const list = map2.get(key) || [];
-      list.push(val);
-      map2.set(key, list);
-    });
-  }
-  return map2;
-}
-var STANDARD_ENCODING_REGEX = /%(\d[a-f0-9])/gi;
-var STANDARD_ENCODING_REPLACEMENTS = {
-  "40": "@",
-  "3A": ":",
-  "24": "$",
-  "2C": ",",
-  "3B": ";",
-  "3D": "=",
-  "3F": "?",
-  "2F": "/"
-};
-function standardEncoding(v) {
-  return encodeURIComponent(v).replace(STANDARD_ENCODING_REGEX, (s, t) => STANDARD_ENCODING_REPLACEMENTS[t] ?? s);
-}
-function valueToString(value) {
-  return `${value}`;
-}
-var HttpParams = class _HttpParams {
-  constructor(options = {}) {
-    this.updates = null;
-    this.cloneFrom = null;
-    this.encoder = options.encoder || new HttpUrlEncodingCodec();
-    if (!!options.fromString) {
-      if (!!options.fromObject) {
-        throw new Error(`Cannot specify both fromString and fromObject.`);
-      }
-      this.map = paramParser(options.fromString, this.encoder);
-    } else if (!!options.fromObject) {
-      this.map = /* @__PURE__ */ new Map();
-      Object.keys(options.fromObject).forEach((key) => {
-        const value = options.fromObject[key];
-        const values = Array.isArray(value) ? value.map(valueToString) : [valueToString(value)];
-        this.map.set(key, values);
-      });
-    } else {
-      this.map = null;
-    }
-  }
-  /**
-   * Reports whether the body includes one or more values for a given parameter.
-   * @param param The parameter name.
-   * @returns True if the parameter has one or more values,
-   * false if it has no value or is not present.
-   */
-  has(param) {
-    this.init();
-    return this.map.has(param);
-  }
-  /**
-   * Retrieves the first value for a parameter.
-   * @param param The parameter name.
-   * @returns The first value of the given parameter,
-   * or `null` if the parameter is not present.
-   */
-  get(param) {
-    this.init();
-    const res = this.map.get(param);
-    return !!res ? res[0] : null;
-  }
-  /**
-   * Retrieves all values for a  parameter.
-   * @param param The parameter name.
-   * @returns All values in a string array,
-   * or `null` if the parameter not present.
-   */
-  getAll(param) {
-    this.init();
-    return this.map.get(param) || null;
-  }
-  /**
-   * Retrieves all the parameters for this body.
-   * @returns The parameter names in a string array.
-   */
-  keys() {
-    this.init();
-    return Array.from(this.map.keys());
-  }
-  /**
-   * Appends a new value to existing values for a parameter.
-   * @param param The parameter name.
-   * @param value The new value to add.
-   * @return A new body with the appended value.
-   */
-  append(param, value) {
-    return this.clone({
-      param,
-      value,
-      op: "a"
-    });
-  }
-  /**
-   * Constructs a new body with appended values for the given parameter name.
-   * @param params parameters and values
-   * @return A new body with the new value.
-   */
-  appendAll(params) {
-    const updates = [];
-    Object.keys(params).forEach((param) => {
-      const value = params[param];
-      if (Array.isArray(value)) {
-        value.forEach((_value) => {
-          updates.push({
-            param,
-            value: _value,
-            op: "a"
-          });
-        });
-      } else {
-        updates.push({
-          param,
-          value,
-          op: "a"
-        });
-      }
-    });
-    return this.clone(updates);
-  }
-  /**
-   * Replaces the value for a parameter.
-   * @param param The parameter name.
-   * @param value The new value.
-   * @return A new body with the new value.
-   */
-  set(param, value) {
-    return this.clone({
-      param,
-      value,
-      op: "s"
-    });
-  }
-  /**
-   * Removes a given value or all values from a parameter.
-   * @param param The parameter name.
-   * @param value The value to remove, if provided.
-   * @return A new body with the given value removed, or with all values
-   * removed if no value is specified.
-   */
-  delete(param, value) {
-    return this.clone({
-      param,
-      value,
-      op: "d"
-    });
-  }
-  /**
-   * Serializes the body to an encoded string, where key-value pairs (separated by `=`) are
-   * separated by `&`s.
-   */
-  toString() {
-    this.init();
-    return this.keys().map((key) => {
-      const eKey = this.encoder.encodeKey(key);
-      return this.map.get(key).map((value) => eKey + "=" + this.encoder.encodeValue(value)).join("&");
-    }).filter((param) => param !== "").join("&");
-  }
-  clone(update) {
-    const clone = new _HttpParams({
-      encoder: this.encoder
-    });
-    clone.cloneFrom = this.cloneFrom || this;
-    clone.updates = (this.updates || []).concat(update);
-    return clone;
-  }
-  init() {
-    if (this.map === null) {
-      this.map = /* @__PURE__ */ new Map();
-    }
-    if (this.cloneFrom !== null) {
-      this.cloneFrom.init();
-      this.cloneFrom.keys().forEach((key) => this.map.set(key, this.cloneFrom.map.get(key)));
-      this.updates.forEach((update) => {
-        switch (update.op) {
-          case "a":
-          case "s":
-            const base = (update.op === "a" ? this.map.get(update.param) : void 0) || [];
-            base.push(valueToString(update.value));
-            this.map.set(update.param, base);
-            break;
-          case "d":
-            if (update.value !== void 0) {
-              let base2 = this.map.get(update.param) || [];
-              const idx = base2.indexOf(valueToString(update.value));
-              if (idx !== -1) {
-                base2.splice(idx, 1);
-              }
-              if (base2.length > 0) {
-                this.map.set(update.param, base2);
-              } else {
-                this.map.delete(update.param);
-              }
-            } else {
-              this.map.delete(update.param);
-              break;
-            }
-        }
-      });
-      this.cloneFrom = this.updates = null;
-    }
-  }
-};
-var HttpContextToken = class {
-  constructor(defaultValue) {
-    this.defaultValue = defaultValue;
-  }
-};
-var HttpContext = class {
-  constructor() {
-    this.map = /* @__PURE__ */ new Map();
-  }
-  /**
-   * Store a value in the context. If a value is already present it will be overwritten.
-   *
-   * @param token The reference to an instance of `HttpContextToken`.
-   * @param value The value to store.
-   *
-   * @returns A reference to itself for easy chaining.
-   */
-  set(token, value) {
-    this.map.set(token, value);
-    return this;
-  }
-  /**
-   * Retrieve the value associated with the given token.
-   *
-   * @param token The reference to an instance of `HttpContextToken`.
-   *
-   * @returns The stored value or default if one is defined.
-   */
-  get(token) {
-    if (!this.map.has(token)) {
-      this.map.set(token, token.defaultValue());
-    }
-    return this.map.get(token);
-  }
-  /**
-   * Delete the value associated with the given token.
-   *
-   * @param token The reference to an instance of `HttpContextToken`.
-   *
-   * @returns A reference to itself for easy chaining.
-   */
-  delete(token) {
-    this.map.delete(token);
-    return this;
-  }
-  /**
-   * Checks for existence of a given token.
-   *
-   * @param token The reference to an instance of `HttpContextToken`.
-   *
-   * @returns True if the token exists, false otherwise.
-   */
-  has(token) {
-    return this.map.has(token);
-  }
-  /**
-   * @returns a list of tokens currently stored in the context.
-   */
-  keys() {
-    return this.map.keys();
-  }
-};
-function mightHaveBody(method) {
-  switch (method) {
-    case "DELETE":
-    case "GET":
-    case "HEAD":
-    case "OPTIONS":
-    case "JSONP":
-      return false;
-    default:
-      return true;
-  }
-}
-function isArrayBuffer(value) {
-  return typeof ArrayBuffer !== "undefined" && value instanceof ArrayBuffer;
-}
-function isBlob(value) {
-  return typeof Blob !== "undefined" && value instanceof Blob;
-}
-function isFormData(value) {
-  return typeof FormData !== "undefined" && value instanceof FormData;
-}
-function isUrlSearchParams(value) {
-  return typeof URLSearchParams !== "undefined" && value instanceof URLSearchParams;
-}
-var HttpRequest = class _HttpRequest {
-  constructor(method, url, third, fourth) {
-    this.url = url;
-    this.body = null;
-    this.reportProgress = false;
-    this.withCredentials = false;
-    this.responseType = "json";
-    this.method = method.toUpperCase();
-    let options;
-    if (mightHaveBody(this.method) || !!fourth) {
-      this.body = third !== void 0 ? third : null;
-      options = fourth;
-    } else {
-      options = third;
-    }
-    if (options) {
-      this.reportProgress = !!options.reportProgress;
-      this.withCredentials = !!options.withCredentials;
-      if (!!options.responseType) {
-        this.responseType = options.responseType;
-      }
-      if (!!options.headers) {
-        this.headers = options.headers;
-      }
-      if (!!options.context) {
-        this.context = options.context;
-      }
-      if (!!options.params) {
-        this.params = options.params;
-      }
-      this.transferCache = options.transferCache;
-    }
-    this.headers ??= new HttpHeaders();
-    this.context ??= new HttpContext();
-    if (!this.params) {
-      this.params = new HttpParams();
-      this.urlWithParams = url;
-    } else {
-      const params = this.params.toString();
-      if (params.length === 0) {
-        this.urlWithParams = url;
-      } else {
-        const qIdx = url.indexOf("?");
-        const sep = qIdx === -1 ? "?" : qIdx < url.length - 1 ? "&" : "";
-        this.urlWithParams = url + sep + params;
-      }
-    }
-  }
-  /**
-   * Transform the free-form body into a serialized format suitable for
-   * transmission to the server.
-   */
-  serializeBody() {
-    if (this.body === null) {
-      return null;
-    }
-    if (typeof this.body === "string" || isArrayBuffer(this.body) || isBlob(this.body) || isFormData(this.body) || isUrlSearchParams(this.body)) {
-      return this.body;
-    }
-    if (this.body instanceof HttpParams) {
-      return this.body.toString();
-    }
-    if (typeof this.body === "object" || typeof this.body === "boolean" || Array.isArray(this.body)) {
-      return JSON.stringify(this.body);
-    }
-    return this.body.toString();
-  }
-  /**
-   * Examine the body and attempt to infer an appropriate MIME type
-   * for it.
-   *
-   * If no such type can be inferred, this method will return `null`.
-   */
-  detectContentTypeHeader() {
-    if (this.body === null) {
-      return null;
-    }
-    if (isFormData(this.body)) {
-      return null;
-    }
-    if (isBlob(this.body)) {
-      return this.body.type || null;
-    }
-    if (isArrayBuffer(this.body)) {
-      return null;
-    }
-    if (typeof this.body === "string") {
-      return "text/plain";
-    }
-    if (this.body instanceof HttpParams) {
-      return "application/x-www-form-urlencoded;charset=UTF-8";
-    }
-    if (typeof this.body === "object" || typeof this.body === "number" || typeof this.body === "boolean") {
-      return "application/json";
-    }
-    return null;
-  }
-  clone(update = {}) {
-    const method = update.method || this.method;
-    const url = update.url || this.url;
-    const responseType = update.responseType || this.responseType;
-    const transferCache = update.transferCache ?? this.transferCache;
-    const body = update.body !== void 0 ? update.body : this.body;
-    const withCredentials = update.withCredentials ?? this.withCredentials;
-    const reportProgress = update.reportProgress ?? this.reportProgress;
-    let headers = update.headers || this.headers;
-    let params = update.params || this.params;
-    const context = update.context ?? this.context;
-    if (update.setHeaders !== void 0) {
-      headers = Object.keys(update.setHeaders).reduce((headers2, name) => headers2.set(name, update.setHeaders[name]), headers);
-    }
-    if (update.setParams) {
-      params = Object.keys(update.setParams).reduce((params2, param) => params2.set(param, update.setParams[param]), params);
-    }
-    return new _HttpRequest(method, url, body, {
-      params,
-      headers,
-      context,
-      reportProgress,
-      responseType,
-      withCredentials,
-      transferCache
-    });
-  }
-};
-var HttpEventType;
-(function(HttpEventType2) {
-  HttpEventType2[HttpEventType2["Sent"] = 0] = "Sent";
-  HttpEventType2[HttpEventType2["UploadProgress"] = 1] = "UploadProgress";
-  HttpEventType2[HttpEventType2["ResponseHeader"] = 2] = "ResponseHeader";
-  HttpEventType2[HttpEventType2["DownloadProgress"] = 3] = "DownloadProgress";
-  HttpEventType2[HttpEventType2["Response"] = 4] = "Response";
-  HttpEventType2[HttpEventType2["User"] = 5] = "User";
-})(HttpEventType || (HttpEventType = {}));
-var HttpResponseBase = class {
-  /**
-   * Super-constructor for all responses.
-   *
-   * The single parameter accepted is an initialization hash. Any properties
-   * of the response passed there will override the default values.
-   */
-  constructor(init, defaultStatus = HttpStatusCode.Ok, defaultStatusText = "OK") {
-    this.headers = init.headers || new HttpHeaders();
-    this.status = init.status !== void 0 ? init.status : defaultStatus;
-    this.statusText = init.statusText || defaultStatusText;
-    this.url = init.url || null;
-    this.ok = this.status >= 200 && this.status < 300;
-  }
-};
-var HttpHeaderResponse = class _HttpHeaderResponse extends HttpResponseBase {
-  /**
-   * Create a new `HttpHeaderResponse` with the given parameters.
-   */
-  constructor(init = {}) {
-    super(init);
-    this.type = HttpEventType.ResponseHeader;
-  }
-  /**
-   * Copy this `HttpHeaderResponse`, overriding its contents with the
-   * given parameter hash.
-   */
-  clone(update = {}) {
-    return new _HttpHeaderResponse({
-      headers: update.headers || this.headers,
-      status: update.status !== void 0 ? update.status : this.status,
-      statusText: update.statusText || this.statusText,
-      url: update.url || this.url || void 0
-    });
-  }
-};
-var HttpResponse = class _HttpResponse extends HttpResponseBase {
-  /**
-   * Construct a new `HttpResponse`.
-   */
-  constructor(init = {}) {
-    super(init);
-    this.type = HttpEventType.Response;
-    this.body = init.body !== void 0 ? init.body : null;
-  }
-  clone(update = {}) {
-    return new _HttpResponse({
-      body: update.body !== void 0 ? update.body : this.body,
-      headers: update.headers || this.headers,
-      status: update.status !== void 0 ? update.status : this.status,
-      statusText: update.statusText || this.statusText,
-      url: update.url || this.url || void 0
-    });
-  }
-};
-var HttpErrorResponse = class extends HttpResponseBase {
-  constructor(init) {
-    super(init, 0, "Unknown Error");
-    this.name = "HttpErrorResponse";
-    this.ok = false;
-    if (this.status >= 200 && this.status < 300) {
-      this.message = `Http failure during parsing for ${init.url || "(unknown url)"}`;
-    } else {
-      this.message = `Http failure response for ${init.url || "(unknown url)"}: ${init.status} ${init.statusText}`;
-    }
-    this.error = init.error || null;
-  }
-};
-var HttpStatusCode;
-(function(HttpStatusCode2) {
-  HttpStatusCode2[HttpStatusCode2["Continue"] = 100] = "Continue";
-  HttpStatusCode2[HttpStatusCode2["SwitchingProtocols"] = 101] = "SwitchingProtocols";
-  HttpStatusCode2[HttpStatusCode2["Processing"] = 102] = "Processing";
-  HttpStatusCode2[HttpStatusCode2["EarlyHints"] = 103] = "EarlyHints";
-  HttpStatusCode2[HttpStatusCode2["Ok"] = 200] = "Ok";
-  HttpStatusCode2[HttpStatusCode2["Created"] = 201] = "Created";
-  HttpStatusCode2[HttpStatusCode2["Accepted"] = 202] = "Accepted";
-  HttpStatusCode2[HttpStatusCode2["NonAuthoritativeInformation"] = 203] = "NonAuthoritativeInformation";
-  HttpStatusCode2[HttpStatusCode2["NoContent"] = 204] = "NoContent";
-  HttpStatusCode2[HttpStatusCode2["ResetContent"] = 205] = "ResetContent";
-  HttpStatusCode2[HttpStatusCode2["PartialContent"] = 206] = "PartialContent";
-  HttpStatusCode2[HttpStatusCode2["MultiStatus"] = 207] = "MultiStatus";
-  HttpStatusCode2[HttpStatusCode2["AlreadyReported"] = 208] = "AlreadyReported";
-  HttpStatusCode2[HttpStatusCode2["ImUsed"] = 226] = "ImUsed";
-  HttpStatusCode2[HttpStatusCode2["MultipleChoices"] = 300] = "MultipleChoices";
-  HttpStatusCode2[HttpStatusCode2["MovedPermanently"] = 301] = "MovedPermanently";
-  HttpStatusCode2[HttpStatusCode2["Found"] = 302] = "Found";
-  HttpStatusCode2[HttpStatusCode2["SeeOther"] = 303] = "SeeOther";
-  HttpStatusCode2[HttpStatusCode2["NotModified"] = 304] = "NotModified";
-  HttpStatusCode2[HttpStatusCode2["UseProxy"] = 305] = "UseProxy";
-  HttpStatusCode2[HttpStatusCode2["Unused"] = 306] = "Unused";
-  HttpStatusCode2[HttpStatusCode2["TemporaryRedirect"] = 307] = "TemporaryRedirect";
-  HttpStatusCode2[HttpStatusCode2["PermanentRedirect"] = 308] = "PermanentRedirect";
-  HttpStatusCode2[HttpStatusCode2["BadRequest"] = 400] = "BadRequest";
-  HttpStatusCode2[HttpStatusCode2["Unauthorized"] = 401] = "Unauthorized";
-  HttpStatusCode2[HttpStatusCode2["PaymentRequired"] = 402] = "PaymentRequired";
-  HttpStatusCode2[HttpStatusCode2["Forbidden"] = 403] = "Forbidden";
-  HttpStatusCode2[HttpStatusCode2["NotFound"] = 404] = "NotFound";
-  HttpStatusCode2[HttpStatusCode2["MethodNotAllowed"] = 405] = "MethodNotAllowed";
-  HttpStatusCode2[HttpStatusCode2["NotAcceptable"] = 406] = "NotAcceptable";
-  HttpStatusCode2[HttpStatusCode2["ProxyAuthenticationRequired"] = 407] = "ProxyAuthenticationRequired";
-  HttpStatusCode2[HttpStatusCode2["RequestTimeout"] = 408] = "RequestTimeout";
-  HttpStatusCode2[HttpStatusCode2["Conflict"] = 409] = "Conflict";
-  HttpStatusCode2[HttpStatusCode2["Gone"] = 410] = "Gone";
-  HttpStatusCode2[HttpStatusCode2["LengthRequired"] = 411] = "LengthRequired";
-  HttpStatusCode2[HttpStatusCode2["PreconditionFailed"] = 412] = "PreconditionFailed";
-  HttpStatusCode2[HttpStatusCode2["PayloadTooLarge"] = 413] = "PayloadTooLarge";
-  HttpStatusCode2[HttpStatusCode2["UriTooLong"] = 414] = "UriTooLong";
-  HttpStatusCode2[HttpStatusCode2["UnsupportedMediaType"] = 415] = "UnsupportedMediaType";
-  HttpStatusCode2[HttpStatusCode2["RangeNotSatisfiable"] = 416] = "RangeNotSatisfiable";
-  HttpStatusCode2[HttpStatusCode2["ExpectationFailed"] = 417] = "ExpectationFailed";
-  HttpStatusCode2[HttpStatusCode2["ImATeapot"] = 418] = "ImATeapot";
-  HttpStatusCode2[HttpStatusCode2["MisdirectedRequest"] = 421] = "MisdirectedRequest";
-  HttpStatusCode2[HttpStatusCode2["UnprocessableEntity"] = 422] = "UnprocessableEntity";
-  HttpStatusCode2[HttpStatusCode2["Locked"] = 423] = "Locked";
-  HttpStatusCode2[HttpStatusCode2["FailedDependency"] = 424] = "FailedDependency";
-  HttpStatusCode2[HttpStatusCode2["TooEarly"] = 425] = "TooEarly";
-  HttpStatusCode2[HttpStatusCode2["UpgradeRequired"] = 426] = "UpgradeRequired";
-  HttpStatusCode2[HttpStatusCode2["PreconditionRequired"] = 428] = "PreconditionRequired";
-  HttpStatusCode2[HttpStatusCode2["TooManyRequests"] = 429] = "TooManyRequests";
-  HttpStatusCode2[HttpStatusCode2["RequestHeaderFieldsTooLarge"] = 431] = "RequestHeaderFieldsTooLarge";
-  HttpStatusCode2[HttpStatusCode2["UnavailableForLegalReasons"] = 451] = "UnavailableForLegalReasons";
-  HttpStatusCode2[HttpStatusCode2["InternalServerError"] = 500] = "InternalServerError";
-  HttpStatusCode2[HttpStatusCode2["NotImplemented"] = 501] = "NotImplemented";
-  HttpStatusCode2[HttpStatusCode2["BadGateway"] = 502] = "BadGateway";
-  HttpStatusCode2[HttpStatusCode2["ServiceUnavailable"] = 503] = "ServiceUnavailable";
-  HttpStatusCode2[HttpStatusCode2["GatewayTimeout"] = 504] = "GatewayTimeout";
-  HttpStatusCode2[HttpStatusCode2["HttpVersionNotSupported"] = 505] = "HttpVersionNotSupported";
-  HttpStatusCode2[HttpStatusCode2["VariantAlsoNegotiates"] = 506] = "VariantAlsoNegotiates";
-  HttpStatusCode2[HttpStatusCode2["InsufficientStorage"] = 507] = "InsufficientStorage";
-  HttpStatusCode2[HttpStatusCode2["LoopDetected"] = 508] = "LoopDetected";
-  HttpStatusCode2[HttpStatusCode2["NotExtended"] = 510] = "NotExtended";
-  HttpStatusCode2[HttpStatusCode2["NetworkAuthenticationRequired"] = 511] = "NetworkAuthenticationRequired";
-})(HttpStatusCode || (HttpStatusCode = {}));
-function addBody(options, body) {
-  return {
-    body,
-    headers: options.headers,
-    context: options.context,
-    observe: options.observe,
-    params: options.params,
-    reportProgress: options.reportProgress,
-    responseType: options.responseType,
-    withCredentials: options.withCredentials,
-    transferCache: options.transferCache
-  };
-}
-var HttpClient = class _HttpClient {
-  constructor(handler) {
-    this.handler = handler;
-  }
-  /**
-   * Constructs an observable for a generic HTTP request that, when subscribed,
-   * fires the request through the chain of registered interceptors and on to the
-   * server.
-   *
-   * You can pass an `HttpRequest` directly as the only parameter. In this case,
-   * the call returns an observable of the raw `HttpEvent` stream.
-   *
-   * Alternatively you can pass an HTTP method as the first parameter,
-   * a URL string as the second, and an options hash containing the request body as the third.
-   * See `addBody()`. In this case, the specified `responseType` and `observe` options determine the
-   * type of returned observable.
-   *   * The `responseType` value determines how a successful response body is parsed.
-   *   * If `responseType` is the default `json`, you can pass a type interface for the resulting
-   * object as a type parameter to the call.
-   *
-   * The `observe` value determines the return type, according to what you are interested in
-   * observing.
-   *   * An `observe` value of events returns an observable of the raw `HttpEvent` stream, including
-   * progress events by default.
-   *   * An `observe` value of response returns an observable of `HttpResponse<T>`,
-   * where the `T` parameter depends on the `responseType` and any optionally provided type
-   * parameter.
-   *   * An `observe` value of body returns an observable of `<T>` with the same `T` body type.
-   *
-   */
-  request(first, url, options = {}) {
-    let req;
-    if (first instanceof HttpRequest) {
-      req = first;
-    } else {
-      let headers = void 0;
-      if (options.headers instanceof HttpHeaders) {
-        headers = options.headers;
-      } else {
-        headers = new HttpHeaders(options.headers);
-      }
-      let params = void 0;
-      if (!!options.params) {
-        if (options.params instanceof HttpParams) {
-          params = options.params;
-        } else {
-          params = new HttpParams({
-            fromObject: options.params
-          });
-        }
-      }
-      req = new HttpRequest(first, url, options.body !== void 0 ? options.body : null, {
-        headers,
-        context: options.context,
-        params,
-        reportProgress: options.reportProgress,
-        // By default, JSON is assumed to be returned for all calls.
-        responseType: options.responseType || "json",
-        withCredentials: options.withCredentials,
-        transferCache: options.transferCache
-      });
-    }
-    const events$ = of(req).pipe(concatMap((req2) => this.handler.handle(req2)));
-    if (first instanceof HttpRequest || options.observe === "events") {
-      return events$;
-    }
-    const res$ = events$.pipe(filter((event) => event instanceof HttpResponse));
-    switch (options.observe || "body") {
-      case "body":
-        switch (req.responseType) {
-          case "arraybuffer":
-            return res$.pipe(map((res) => {
-              if (res.body !== null && !(res.body instanceof ArrayBuffer)) {
-                throw new Error("Response is not an ArrayBuffer.");
-              }
-              return res.body;
-            }));
-          case "blob":
-            return res$.pipe(map((res) => {
-              if (res.body !== null && !(res.body instanceof Blob)) {
-                throw new Error("Response is not a Blob.");
-              }
-              return res.body;
-            }));
-          case "text":
-            return res$.pipe(map((res) => {
-              if (res.body !== null && typeof res.body !== "string") {
-                throw new Error("Response is not a string.");
-              }
-              return res.body;
-            }));
-          case "json":
-          default:
-            return res$.pipe(map((res) => res.body));
-        }
-      case "response":
-        return res$;
-      default:
-        throw new Error(`Unreachable: unhandled observe type ${options.observe}}`);
-    }
-  }
-  /**
-   * Constructs an observable that, when subscribed, causes the configured
-   * `DELETE` request to execute on the server. See the individual overloads for
-   * details on the return type.
-   *
-   * @param url     The endpoint URL.
-   * @param options The HTTP options to send with the request.
-   *
-   */
-  delete(url, options = {}) {
-    return this.request("DELETE", url, options);
-  }
-  /**
-   * Constructs an observable that, when subscribed, causes the configured
-   * `GET` request to execute on the server. See the individual overloads for
-   * details on the return type.
-   */
-  get(url, options = {}) {
-    return this.request("GET", url, options);
-  }
-  /**
-   * Constructs an observable that, when subscribed, causes the configured
-   * `HEAD` request to execute on the server. The `HEAD` method returns
-   * meta information about the resource without transferring the
-   * resource itself. See the individual overloads for
-   * details on the return type.
-   */
-  head(url, options = {}) {
-    return this.request("HEAD", url, options);
-  }
-  /**
-   * Constructs an `Observable` that, when subscribed, causes a request with the special method
-   * `JSONP` to be dispatched via the interceptor pipeline.
-   * The [JSONP pattern](https://en.wikipedia.org/wiki/JSONP) works around limitations of certain
-   * API endpoints that don't support newer,
-   * and preferable [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) protocol.
-   * JSONP treats the endpoint API as a JavaScript file and tricks the browser to process the
-   * requests even if the API endpoint is not located on the same domain (origin) as the client-side
-   * application making the request.
-   * The endpoint API must support JSONP callback for JSONP requests to work.
-   * The resource API returns the JSON response wrapped in a callback function.
-   * You can pass the callback function name as one of the query parameters.
-   * Note that JSONP requests can only be used with `GET` requests.
-   *
-   * @param url The resource URL.
-   * @param callbackParam The callback function name.
-   *
-   */
-  jsonp(url, callbackParam) {
-    return this.request("JSONP", url, {
-      params: new HttpParams().append(callbackParam, "JSONP_CALLBACK"),
-      observe: "body",
-      responseType: "json"
-    });
-  }
-  /**
-   * Constructs an `Observable` that, when subscribed, causes the configured
-   * `OPTIONS` request to execute on the server. This method allows the client
-   * to determine the supported HTTP methods and other capabilities of an endpoint,
-   * without implying a resource action. See the individual overloads for
-   * details on the return type.
-   */
-  options(url, options = {}) {
-    return this.request("OPTIONS", url, options);
-  }
-  /**
-   * Constructs an observable that, when subscribed, causes the configured
-   * `PATCH` request to execute on the server. See the individual overloads for
-   * details on the return type.
-   */
-  patch(url, body, options = {}) {
-    return this.request("PATCH", url, addBody(options, body));
-  }
-  /**
-   * Constructs an observable that, when subscribed, causes the configured
-   * `POST` request to execute on the server. The server responds with the location of
-   * the replaced resource. See the individual overloads for
-   * details on the return type.
-   */
-  post(url, body, options = {}) {
-    return this.request("POST", url, addBody(options, body));
-  }
-  /**
-   * Constructs an observable that, when subscribed, causes the configured
-   * `PUT` request to execute on the server. The `PUT` method replaces an existing resource
-   * with a new set of values.
-   * See the individual overloads for details on the return type.
-   */
-  put(url, body, options = {}) {
-    return this.request("PUT", url, addBody(options, body));
-  }
-  static {
-    this.ɵfac = function HttpClient_Factory(t) {
-      return new (t || _HttpClient)(ɵɵinject(HttpHandler));
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _HttpClient,
-      factory: _HttpClient.ɵfac
-    });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpClient, [{
-    type: Injectable
-  }], () => [{
-    type: HttpHandler
-  }], null);
-})();
-var XSSI_PREFIX$1 = /^\)\]\}',?\n/;
-var REQUEST_URL_HEADER = `X-Request-URL`;
-function getResponseUrl$1(response) {
-  if (response.url) {
-    return response.url;
-  }
-  const xRequestUrl = REQUEST_URL_HEADER.toLocaleLowerCase();
-  return response.headers.get(xRequestUrl);
-}
-var FetchBackend = class _FetchBackend {
-  constructor() {
-    this.fetchImpl = inject(FetchFactory, {
-      optional: true
-    })?.fetch ?? fetch.bind(globalThis);
-    this.ngZone = inject(NgZone);
-  }
-  handle(request) {
-    return new Observable((observer) => {
-      const aborter = new AbortController();
-      this.doRequest(request, aborter.signal, observer).then(noop, (error) => observer.error(new HttpErrorResponse({
-        error
-      })));
-      return () => aborter.abort();
-    });
-  }
-  doRequest(request, signal, observer) {
-    return __async(this, null, function* () {
-      const init = this.createRequestInit(request);
-      let response;
-      try {
-        const fetchPromise = this.fetchImpl(request.urlWithParams, __spreadValues({
-          signal
-        }, init));
-        silenceSuperfluousUnhandledPromiseRejection(fetchPromise);
-        observer.next({
-          type: HttpEventType.Sent
-        });
-        response = yield fetchPromise;
-      } catch (error) {
-        observer.error(new HttpErrorResponse({
-          error,
-          status: error.status ?? 0,
-          statusText: error.statusText,
-          url: request.urlWithParams,
-          headers: error.headers
-        }));
-        return;
-      }
-      const headers = new HttpHeaders(response.headers);
-      const statusText = response.statusText;
-      const url = getResponseUrl$1(response) ?? request.urlWithParams;
-      let status = response.status;
-      let body = null;
-      if (request.reportProgress) {
-        observer.next(new HttpHeaderResponse({
-          headers,
-          status,
-          statusText,
-          url
-        }));
-      }
-      if (response.body) {
-        const contentLength = response.headers.get("content-length");
-        const chunks = [];
-        const reader = response.body.getReader();
-        let receivedLength = 0;
-        let decoder;
-        let partialText;
-        const reqZone = typeof Zone !== "undefined" && Zone.current;
-        yield this.ngZone.runOutsideAngular(() => __async(this, null, function* () {
-          while (true) {
-            const {
-              done,
-              value
-            } = yield reader.read();
-            if (done) {
-              break;
-            }
-            chunks.push(value);
-            receivedLength += value.length;
-            if (request.reportProgress) {
-              partialText = request.responseType === "text" ? (partialText ?? "") + (decoder ??= new TextDecoder()).decode(value, {
-                stream: true
-              }) : void 0;
-              const reportProgress = () => observer.next({
-                type: HttpEventType.DownloadProgress,
-                total: contentLength ? +contentLength : void 0,
-                loaded: receivedLength,
-                partialText
-              });
-              reqZone ? reqZone.run(reportProgress) : reportProgress();
-            }
-          }
-        }));
-        const chunksAll = this.concatChunks(chunks, receivedLength);
-        try {
-          const contentType = response.headers.get("Content-Type") ?? "";
-          body = this.parseBody(request, chunksAll, contentType);
-        } catch (error) {
-          observer.error(new HttpErrorResponse({
-            error,
-            headers: new HttpHeaders(response.headers),
-            status: response.status,
-            statusText: response.statusText,
-            url: getResponseUrl$1(response) ?? request.urlWithParams
-          }));
-          return;
-        }
-      }
-      if (status === 0) {
-        status = body ? HttpStatusCode.Ok : 0;
-      }
-      const ok = status >= 200 && status < 300;
-      if (ok) {
-        observer.next(new HttpResponse({
-          body,
-          headers,
-          status,
-          statusText,
-          url
-        }));
-        observer.complete();
-      } else {
-        observer.error(new HttpErrorResponse({
-          error: body,
-          headers,
-          status,
-          statusText,
-          url
-        }));
-      }
-    });
-  }
-  parseBody(request, binContent, contentType) {
-    switch (request.responseType) {
-      case "json":
-        const text = new TextDecoder().decode(binContent).replace(XSSI_PREFIX$1, "");
-        return text === "" ? null : JSON.parse(text);
-      case "text":
-        return new TextDecoder().decode(binContent);
-      case "blob":
-        return new Blob([binContent], {
-          type: contentType
-        });
-      case "arraybuffer":
-        return binContent.buffer;
-    }
-  }
-  createRequestInit(req) {
-    const headers = {};
-    const credentials = req.withCredentials ? "include" : void 0;
-    req.headers.forEach((name, values) => headers[name] = values.join(","));
-    headers["Accept"] ??= "application/json, text/plain, */*";
-    if (!headers["Content-Type"]) {
-      const detectedType = req.detectContentTypeHeader();
-      if (detectedType !== null) {
-        headers["Content-Type"] = detectedType;
-      }
-    }
-    return {
-      body: req.serializeBody(),
-      method: req.method,
-      headers,
-      credentials
-    };
-  }
-  concatChunks(chunks, totalLength) {
-    const chunksAll = new Uint8Array(totalLength);
-    let position = 0;
-    for (const chunk of chunks) {
-      chunksAll.set(chunk, position);
-      position += chunk.length;
-    }
-    return chunksAll;
-  }
-  static {
-    this.ɵfac = function FetchBackend_Factory(t) {
-      return new (t || _FetchBackend)();
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _FetchBackend,
-      factory: _FetchBackend.ɵfac
-    });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FetchBackend, [{
-    type: Injectable
-  }], null, null);
-})();
-var FetchFactory = class {
-};
-function noop() {
-}
-function silenceSuperfluousUnhandledPromiseRejection(promise) {
-  promise.then(noop, noop);
-}
-function interceptorChainEndFn(req, finalHandlerFn) {
-  return finalHandlerFn(req);
-}
-function adaptLegacyInterceptorToChain(chainTailFn, interceptor) {
-  return (initialRequest, finalHandlerFn) => interceptor.intercept(initialRequest, {
-    handle: (downstreamRequest) => chainTailFn(downstreamRequest, finalHandlerFn)
-  });
-}
-function chainedInterceptorFn(chainTailFn, interceptorFn, injector) {
-  return (initialRequest, finalHandlerFn) => runInInjectionContext(injector, () => interceptorFn(initialRequest, (downstreamRequest) => chainTailFn(downstreamRequest, finalHandlerFn)));
-}
-var HTTP_INTERCEPTORS = new InjectionToken(ngDevMode ? "HTTP_INTERCEPTORS" : "");
-var HTTP_INTERCEPTOR_FNS = new InjectionToken(ngDevMode ? "HTTP_INTERCEPTOR_FNS" : "");
-var HTTP_ROOT_INTERCEPTOR_FNS = new InjectionToken(ngDevMode ? "HTTP_ROOT_INTERCEPTOR_FNS" : "");
-var PRIMARY_HTTP_BACKEND = new InjectionToken(ngDevMode ? "PRIMARY_HTTP_BACKEND" : "");
-function legacyInterceptorFnFactory() {
-  let chain = null;
-  return (req, handler) => {
-    if (chain === null) {
-      const interceptors = inject(HTTP_INTERCEPTORS, {
-        optional: true
-      }) ?? [];
-      chain = interceptors.reduceRight(adaptLegacyInterceptorToChain, interceptorChainEndFn);
-    }
-    const pendingTasks = inject(PendingTasks);
-    const taskId = pendingTasks.add();
-    return chain(req, handler).pipe(finalize(() => pendingTasks.remove(taskId)));
-  };
-}
-var fetchBackendWarningDisplayed = false;
-var HttpInterceptorHandler = class _HttpInterceptorHandler extends HttpHandler {
-  constructor(backend, injector) {
-    super();
-    this.backend = backend;
-    this.injector = injector;
-    this.chain = null;
-    this.pendingTasks = inject(PendingTasks);
-    const primaryHttpBackend = inject(PRIMARY_HTTP_BACKEND, {
-      optional: true
-    });
-    this.backend = primaryHttpBackend ?? backend;
-    if ((typeof ngDevMode === "undefined" || ngDevMode) && !fetchBackendWarningDisplayed) {
-      const isServer = isPlatformServer(injector.get(PLATFORM_ID));
-      if (isServer && !(this.backend instanceof FetchBackend)) {
-        fetchBackendWarningDisplayed = true;
-        injector.get(Console).warn(formatRuntimeError(2801, "Angular detected that `HttpClient` is not configured to use `fetch` APIs. It's strongly recommended to enable `fetch` for applications that use Server-Side Rendering for better performance and compatibility. To enable `fetch`, add the `withFetch()` to the `provideHttpClient()` call at the root of the application."));
-      }
-    }
-  }
-  handle(initialRequest) {
-    if (this.chain === null) {
-      const dedupedInterceptorFns = Array.from(/* @__PURE__ */ new Set([...this.injector.get(HTTP_INTERCEPTOR_FNS), ...this.injector.get(HTTP_ROOT_INTERCEPTOR_FNS, [])]));
-      this.chain = dedupedInterceptorFns.reduceRight((nextSequencedFn, interceptorFn) => chainedInterceptorFn(nextSequencedFn, interceptorFn, this.injector), interceptorChainEndFn);
-    }
-    const taskId = this.pendingTasks.add();
-    return this.chain(initialRequest, (downstreamRequest) => this.backend.handle(downstreamRequest)).pipe(finalize(() => this.pendingTasks.remove(taskId)));
-  }
-  static {
-    this.ɵfac = function HttpInterceptorHandler_Factory(t) {
-      return new (t || _HttpInterceptorHandler)(ɵɵinject(HttpBackend), ɵɵinject(EnvironmentInjector));
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _HttpInterceptorHandler,
-      factory: _HttpInterceptorHandler.ɵfac
-    });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpInterceptorHandler, [{
-    type: Injectable
-  }], () => [{
-    type: HttpBackend
-  }, {
-    type: EnvironmentInjector
-  }], null);
-})();
-var nextRequestId = 0;
-var foreignDocument;
-var JSONP_ERR_NO_CALLBACK = "JSONP injected script did not invoke callback.";
-var JSONP_ERR_WRONG_METHOD = "JSONP requests must use JSONP request method.";
-var JSONP_ERR_WRONG_RESPONSE_TYPE = "JSONP requests must use Json response type.";
-var JSONP_ERR_HEADERS_NOT_SUPPORTED = "JSONP requests do not support headers.";
-var JsonpCallbackContext = class {
-};
-function jsonpCallbackContext() {
-  if (typeof window === "object") {
-    return window;
-  }
-  return {};
-}
-var JsonpClientBackend = class _JsonpClientBackend {
-  constructor(callbackMap, document) {
-    this.callbackMap = callbackMap;
-    this.document = document;
-    this.resolvedPromise = Promise.resolve();
-  }
-  /**
-   * Get the name of the next callback method, by incrementing the global `nextRequestId`.
-   */
-  nextCallback() {
-    return `ng_jsonp_callback_${nextRequestId++}`;
-  }
-  /**
-   * Processes a JSONP request and returns an event stream of the results.
-   * @param req The request object.
-   * @returns An observable of the response events.
-   *
-   */
-  handle(req) {
-    if (req.method !== "JSONP") {
-      throw new Error(JSONP_ERR_WRONG_METHOD);
-    } else if (req.responseType !== "json") {
-      throw new Error(JSONP_ERR_WRONG_RESPONSE_TYPE);
-    }
-    if (req.headers.keys().length > 0) {
-      throw new Error(JSONP_ERR_HEADERS_NOT_SUPPORTED);
-    }
-    return new Observable((observer) => {
-      const callback = this.nextCallback();
-      const url = req.urlWithParams.replace(/=JSONP_CALLBACK(&|$)/, `=${callback}$1`);
-      const node = this.document.createElement("script");
-      node.src = url;
-      let body = null;
-      let finished = false;
-      this.callbackMap[callback] = (data) => {
-        delete this.callbackMap[callback];
-        body = data;
-        finished = true;
-      };
-      const cleanup = () => {
-        if (node.parentNode) {
-          node.parentNode.removeChild(node);
-        }
-        delete this.callbackMap[callback];
-      };
-      const onLoad = (event) => {
-        this.resolvedPromise.then(() => {
-          cleanup();
-          if (!finished) {
-            observer.error(new HttpErrorResponse({
-              url,
-              status: 0,
-              statusText: "JSONP Error",
-              error: new Error(JSONP_ERR_NO_CALLBACK)
-            }));
-            return;
-          }
-          observer.next(new HttpResponse({
-            body,
-            status: HttpStatusCode.Ok,
-            statusText: "OK",
-            url
-          }));
-          observer.complete();
-        });
-      };
-      const onError = (error) => {
-        cleanup();
-        observer.error(new HttpErrorResponse({
-          error,
-          status: 0,
-          statusText: "JSONP Error",
-          url
-        }));
-      };
-      node.addEventListener("load", onLoad);
-      node.addEventListener("error", onError);
-      this.document.body.appendChild(node);
-      observer.next({
-        type: HttpEventType.Sent
-      });
-      return () => {
-        if (!finished) {
-          this.removeListeners(node);
-        }
-        cleanup();
-      };
-    });
-  }
-  removeListeners(script) {
-    foreignDocument ??= this.document.implementation.createHTMLDocument();
-    foreignDocument.adoptNode(script);
-  }
-  static {
-    this.ɵfac = function JsonpClientBackend_Factory(t) {
-      return new (t || _JsonpClientBackend)(ɵɵinject(JsonpCallbackContext), ɵɵinject(DOCUMENT));
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _JsonpClientBackend,
-      factory: _JsonpClientBackend.ɵfac
-    });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(JsonpClientBackend, [{
-    type: Injectable
-  }], () => [{
-    type: JsonpCallbackContext
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Inject,
-      args: [DOCUMENT]
-    }]
-  }], null);
-})();
-function jsonpInterceptorFn(req, next) {
-  if (req.method === "JSONP") {
-    return inject(JsonpClientBackend).handle(req);
-  }
-  return next(req);
-}
-var JsonpInterceptor = class _JsonpInterceptor {
-  constructor(injector) {
-    this.injector = injector;
-  }
-  /**
-   * Identifies and handles a given JSONP request.
-   * @param initialRequest The outgoing request object to handle.
-   * @param next The next interceptor in the chain, or the backend
-   * if no interceptors remain in the chain.
-   * @returns An observable of the event stream.
-   */
-  intercept(initialRequest, next) {
-    return runInInjectionContext(this.injector, () => jsonpInterceptorFn(initialRequest, (downstreamRequest) => next.handle(downstreamRequest)));
-  }
-  static {
-    this.ɵfac = function JsonpInterceptor_Factory(t) {
-      return new (t || _JsonpInterceptor)(ɵɵinject(EnvironmentInjector));
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _JsonpInterceptor,
-      factory: _JsonpInterceptor.ɵfac
-    });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(JsonpInterceptor, [{
-    type: Injectable
-  }], () => [{
-    type: EnvironmentInjector
-  }], null);
-})();
-var XSSI_PREFIX = /^\)\]\}',?\n/;
-function getResponseUrl(xhr) {
-  if ("responseURL" in xhr && xhr.responseURL) {
-    return xhr.responseURL;
-  }
-  if (/^X-Request-URL:/m.test(xhr.getAllResponseHeaders())) {
-    return xhr.getResponseHeader("X-Request-URL");
-  }
-  return null;
-}
-var HttpXhrBackend = class _HttpXhrBackend {
-  constructor(xhrFactory) {
-    this.xhrFactory = xhrFactory;
-  }
-  /**
-   * Processes a request and returns a stream of response events.
-   * @param req The request object.
-   * @returns An observable of the response events.
-   */
-  handle(req) {
-    if (req.method === "JSONP") {
-      throw new RuntimeError(-2800, (typeof ngDevMode === "undefined" || ngDevMode) && `Cannot make a JSONP request without JSONP support. To fix the problem, either add the \`withJsonpSupport()\` call (if \`provideHttpClient()\` is used) or import the \`HttpClientJsonpModule\` in the root NgModule.`);
-    }
-    const xhrFactory = this.xhrFactory;
-    const source = xhrFactory.ɵloadImpl ? from(xhrFactory.ɵloadImpl()) : of(null);
-    return source.pipe(switchMap(() => {
-      return new Observable((observer) => {
-        const xhr = xhrFactory.build();
-        xhr.open(req.method, req.urlWithParams);
-        if (req.withCredentials) {
-          xhr.withCredentials = true;
-        }
-        req.headers.forEach((name, values) => xhr.setRequestHeader(name, values.join(",")));
-        if (!req.headers.has("Accept")) {
-          xhr.setRequestHeader("Accept", "application/json, text/plain, */*");
-        }
-        if (!req.headers.has("Content-Type")) {
-          const detectedType = req.detectContentTypeHeader();
-          if (detectedType !== null) {
-            xhr.setRequestHeader("Content-Type", detectedType);
-          }
-        }
-        if (req.responseType) {
-          const responseType = req.responseType.toLowerCase();
-          xhr.responseType = responseType !== "json" ? responseType : "text";
-        }
-        const reqBody = req.serializeBody();
-        let headerResponse = null;
-        const partialFromXhr = () => {
-          if (headerResponse !== null) {
-            return headerResponse;
-          }
-          const statusText = xhr.statusText || "OK";
-          const headers = new HttpHeaders(xhr.getAllResponseHeaders());
-          const url = getResponseUrl(xhr) || req.url;
-          headerResponse = new HttpHeaderResponse({
-            headers,
-            status: xhr.status,
-            statusText,
-            url
-          });
-          return headerResponse;
-        };
-        const onLoad = () => {
-          let {
-            headers,
-            status,
-            statusText,
-            url
-          } = partialFromXhr();
-          let body = null;
-          if (status !== HttpStatusCode.NoContent) {
-            body = typeof xhr.response === "undefined" ? xhr.responseText : xhr.response;
-          }
-          if (status === 0) {
-            status = !!body ? HttpStatusCode.Ok : 0;
-          }
-          let ok = status >= 200 && status < 300;
-          if (req.responseType === "json" && typeof body === "string") {
-            const originalBody = body;
-            body = body.replace(XSSI_PREFIX, "");
-            try {
-              body = body !== "" ? JSON.parse(body) : null;
-            } catch (error) {
-              body = originalBody;
-              if (ok) {
-                ok = false;
-                body = {
-                  error,
-                  text: body
-                };
-              }
-            }
-          }
-          if (ok) {
-            observer.next(new HttpResponse({
-              body,
-              headers,
-              status,
-              statusText,
-              url: url || void 0
-            }));
-            observer.complete();
-          } else {
-            observer.error(new HttpErrorResponse({
-              // The error in this case is the response body (error from the server).
-              error: body,
-              headers,
-              status,
-              statusText,
-              url: url || void 0
-            }));
-          }
-        };
-        const onError = (error) => {
-          const {
-            url
-          } = partialFromXhr();
-          const res = new HttpErrorResponse({
-            error,
-            status: xhr.status || 0,
-            statusText: xhr.statusText || "Unknown Error",
-            url: url || void 0
-          });
-          observer.error(res);
-        };
-        let sentHeaders = false;
-        const onDownProgress = (event) => {
-          if (!sentHeaders) {
-            observer.next(partialFromXhr());
-            sentHeaders = true;
-          }
-          let progressEvent = {
-            type: HttpEventType.DownloadProgress,
-            loaded: event.loaded
-          };
-          if (event.lengthComputable) {
-            progressEvent.total = event.total;
-          }
-          if (req.responseType === "text" && !!xhr.responseText) {
-            progressEvent.partialText = xhr.responseText;
-          }
-          observer.next(progressEvent);
-        };
-        const onUpProgress = (event) => {
-          let progress = {
-            type: HttpEventType.UploadProgress,
-            loaded: event.loaded
-          };
-          if (event.lengthComputable) {
-            progress.total = event.total;
-          }
-          observer.next(progress);
-        };
-        xhr.addEventListener("load", onLoad);
-        xhr.addEventListener("error", onError);
-        xhr.addEventListener("timeout", onError);
-        xhr.addEventListener("abort", onError);
-        if (req.reportProgress) {
-          xhr.addEventListener("progress", onDownProgress);
-          if (reqBody !== null && xhr.upload) {
-            xhr.upload.addEventListener("progress", onUpProgress);
-          }
-        }
-        xhr.send(reqBody);
-        observer.next({
-          type: HttpEventType.Sent
-        });
-        return () => {
-          xhr.removeEventListener("error", onError);
-          xhr.removeEventListener("abort", onError);
-          xhr.removeEventListener("load", onLoad);
-          xhr.removeEventListener("timeout", onError);
-          if (req.reportProgress) {
-            xhr.removeEventListener("progress", onDownProgress);
-            if (reqBody !== null && xhr.upload) {
-              xhr.upload.removeEventListener("progress", onUpProgress);
-            }
-          }
-          if (xhr.readyState !== xhr.DONE) {
-            xhr.abort();
-          }
-        };
-      });
-    }));
-  }
-  static {
-    this.ɵfac = function HttpXhrBackend_Factory(t) {
-      return new (t || _HttpXhrBackend)(ɵɵinject(XhrFactory));
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _HttpXhrBackend,
-      factory: _HttpXhrBackend.ɵfac
-    });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpXhrBackend, [{
-    type: Injectable
-  }], () => [{
-    type: XhrFactory
-  }], null);
-})();
-var XSRF_ENABLED = new InjectionToken(ngDevMode ? "XSRF_ENABLED" : "");
-var XSRF_DEFAULT_COOKIE_NAME = "XSRF-TOKEN";
-var XSRF_COOKIE_NAME = new InjectionToken(ngDevMode ? "XSRF_COOKIE_NAME" : "", {
-  providedIn: "root",
-  factory: () => XSRF_DEFAULT_COOKIE_NAME
-});
-var XSRF_DEFAULT_HEADER_NAME = "X-XSRF-TOKEN";
-var XSRF_HEADER_NAME = new InjectionToken(ngDevMode ? "XSRF_HEADER_NAME" : "", {
-  providedIn: "root",
-  factory: () => XSRF_DEFAULT_HEADER_NAME
-});
-var HttpXsrfTokenExtractor = class {
-};
-var HttpXsrfCookieExtractor = class _HttpXsrfCookieExtractor {
-  constructor(doc, platform, cookieName) {
-    this.doc = doc;
-    this.platform = platform;
-    this.cookieName = cookieName;
-    this.lastCookieString = "";
-    this.lastToken = null;
-    this.parseCount = 0;
-  }
-  getToken() {
-    if (this.platform === "server") {
-      return null;
-    }
-    const cookieString = this.doc.cookie || "";
-    if (cookieString !== this.lastCookieString) {
-      this.parseCount++;
-      this.lastToken = parseCookieValue(cookieString, this.cookieName);
-      this.lastCookieString = cookieString;
-    }
-    return this.lastToken;
-  }
-  static {
-    this.ɵfac = function HttpXsrfCookieExtractor_Factory(t) {
-      return new (t || _HttpXsrfCookieExtractor)(ɵɵinject(DOCUMENT), ɵɵinject(PLATFORM_ID), ɵɵinject(XSRF_COOKIE_NAME));
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _HttpXsrfCookieExtractor,
-      factory: _HttpXsrfCookieExtractor.ɵfac
-    });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpXsrfCookieExtractor, [{
-    type: Injectable
-  }], () => [{
-    type: void 0,
-    decorators: [{
-      type: Inject,
-      args: [DOCUMENT]
-    }]
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Inject,
-      args: [PLATFORM_ID]
-    }]
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Inject,
-      args: [XSRF_COOKIE_NAME]
-    }]
-  }], null);
-})();
-function xsrfInterceptorFn(req, next) {
-  const lcUrl = req.url.toLowerCase();
-  if (!inject(XSRF_ENABLED) || req.method === "GET" || req.method === "HEAD" || lcUrl.startsWith("http://") || lcUrl.startsWith("https://")) {
-    return next(req);
-  }
-  const token = inject(HttpXsrfTokenExtractor).getToken();
-  const headerName = inject(XSRF_HEADER_NAME);
-  if (token != null && !req.headers.has(headerName)) {
-    req = req.clone({
-      headers: req.headers.set(headerName, token)
-    });
-  }
-  return next(req);
-}
-var HttpXsrfInterceptor = class _HttpXsrfInterceptor {
-  constructor(injector) {
-    this.injector = injector;
-  }
-  intercept(initialRequest, next) {
-    return runInInjectionContext(this.injector, () => xsrfInterceptorFn(initialRequest, (downstreamRequest) => next.handle(downstreamRequest)));
-  }
-  static {
-    this.ɵfac = function HttpXsrfInterceptor_Factory(t) {
-      return new (t || _HttpXsrfInterceptor)(ɵɵinject(EnvironmentInjector));
-    };
-  }
-  static {
-    this.ɵprov = ɵɵdefineInjectable({
-      token: _HttpXsrfInterceptor,
-      factory: _HttpXsrfInterceptor.ɵfac
-    });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpXsrfInterceptor, [{
-    type: Injectable
-  }], () => [{
-    type: EnvironmentInjector
-  }], null);
-})();
-var HttpFeatureKind;
-(function(HttpFeatureKind2) {
-  HttpFeatureKind2[HttpFeatureKind2["Interceptors"] = 0] = "Interceptors";
-  HttpFeatureKind2[HttpFeatureKind2["LegacyInterceptors"] = 1] = "LegacyInterceptors";
-  HttpFeatureKind2[HttpFeatureKind2["CustomXsrfConfiguration"] = 2] = "CustomXsrfConfiguration";
-  HttpFeatureKind2[HttpFeatureKind2["NoXsrfProtection"] = 3] = "NoXsrfProtection";
-  HttpFeatureKind2[HttpFeatureKind2["JsonpSupport"] = 4] = "JsonpSupport";
-  HttpFeatureKind2[HttpFeatureKind2["RequestsMadeViaParent"] = 5] = "RequestsMadeViaParent";
-  HttpFeatureKind2[HttpFeatureKind2["Fetch"] = 6] = "Fetch";
-})(HttpFeatureKind || (HttpFeatureKind = {}));
-function makeHttpFeature(kind, providers) {
-  return {
-    ɵkind: kind,
-    ɵproviders: providers
-  };
-}
-function provideHttpClient(...features) {
-  if (ngDevMode) {
-    const featureKinds = new Set(features.map((f) => f.ɵkind));
-    if (featureKinds.has(HttpFeatureKind.NoXsrfProtection) && featureKinds.has(HttpFeatureKind.CustomXsrfConfiguration)) {
-      throw new Error(ngDevMode ? `Configuration error: found both withXsrfConfiguration() and withNoXsrfProtection() in the same call to provideHttpClient(), which is a contradiction.` : "");
-    }
-  }
-  const providers = [HttpClient, HttpXhrBackend, HttpInterceptorHandler, {
-    provide: HttpHandler,
-    useExisting: HttpInterceptorHandler
-  }, {
-    provide: HttpBackend,
-    useExisting: HttpXhrBackend
-  }, {
-    provide: HTTP_INTERCEPTOR_FNS,
-    useValue: xsrfInterceptorFn,
-    multi: true
-  }, {
-    provide: XSRF_ENABLED,
-    useValue: true
-  }, {
-    provide: HttpXsrfTokenExtractor,
-    useClass: HttpXsrfCookieExtractor
-  }];
-  for (const feature of features) {
-    providers.push(...feature.ɵproviders);
-  }
-  return makeEnvironmentProviders(providers);
-}
-function withInterceptors(interceptorFns) {
-  return makeHttpFeature(HttpFeatureKind.Interceptors, interceptorFns.map((interceptorFn) => {
-    return {
-      provide: HTTP_INTERCEPTOR_FNS,
-      useValue: interceptorFn,
-      multi: true
-    };
-  }));
-}
-var LEGACY_INTERCEPTOR_FN = new InjectionToken(ngDevMode ? "LEGACY_INTERCEPTOR_FN" : "");
-function withInterceptorsFromDi() {
-  return makeHttpFeature(HttpFeatureKind.LegacyInterceptors, [{
-    provide: LEGACY_INTERCEPTOR_FN,
-    useFactory: legacyInterceptorFnFactory
-  }, {
-    provide: HTTP_INTERCEPTOR_FNS,
-    useExisting: LEGACY_INTERCEPTOR_FN,
-    multi: true
-  }]);
-}
-function withXsrfConfiguration({
-  cookieName,
-  headerName
-}) {
-  const providers = [];
-  if (cookieName !== void 0) {
-    providers.push({
-      provide: XSRF_COOKIE_NAME,
-      useValue: cookieName
-    });
-  }
-  if (headerName !== void 0) {
-    providers.push({
-      provide: XSRF_HEADER_NAME,
-      useValue: headerName
-    });
-  }
-  return makeHttpFeature(HttpFeatureKind.CustomXsrfConfiguration, providers);
-}
-function withNoXsrfProtection() {
-  return makeHttpFeature(HttpFeatureKind.NoXsrfProtection, [{
-    provide: XSRF_ENABLED,
-    useValue: false
-  }]);
-}
-function withJsonpSupport() {
-  return makeHttpFeature(HttpFeatureKind.JsonpSupport, [JsonpClientBackend, {
-    provide: JsonpCallbackContext,
-    useFactory: jsonpCallbackContext
-  }, {
-    provide: HTTP_INTERCEPTOR_FNS,
-    useValue: jsonpInterceptorFn,
-    multi: true
-  }]);
-}
-function withRequestsMadeViaParent() {
-  return makeHttpFeature(HttpFeatureKind.RequestsMadeViaParent, [{
-    provide: HttpBackend,
-    useFactory: () => {
-      const handlerFromParent = inject(HttpHandler, {
-        skipSelf: true,
-        optional: true
-      });
-      if (ngDevMode && handlerFromParent === null) {
-        throw new Error("withRequestsMadeViaParent() can only be used when the parent injector also configures HttpClient");
-      }
-      return handlerFromParent;
-    }
-  }]);
-}
-function withFetch() {
-  if ((typeof ngDevMode === "undefined" || ngDevMode) && typeof fetch !== "function") {
-    throw new Error("The `withFetch` feature of HttpClient requires the `fetch` API to be available. If you run the code in a Node environment, make sure you use Node v18.10 or later.");
-  }
-  return makeHttpFeature(HttpFeatureKind.Fetch, [FetchBackend, {
-    provide: HttpBackend,
-    useExisting: FetchBackend
-  }, {
-    provide: PRIMARY_HTTP_BACKEND,
-    useExisting: FetchBackend
-  }]);
-}
-var HttpClientXsrfModule = class _HttpClientXsrfModule {
-  /**
-   * Disable the default XSRF protection.
-   */
-  static disable() {
-    return {
-      ngModule: _HttpClientXsrfModule,
-      providers: [withNoXsrfProtection().ɵproviders]
-    };
-  }
-  /**
-   * Configure XSRF protection.
-   * @param options An object that can specify either or both
-   * cookie name or header name.
-   * - Cookie name default is `XSRF-TOKEN`.
-   * - Header name default is `X-XSRF-TOKEN`.
-   *
-   */
-  static withOptions(options = {}) {
-    return {
-      ngModule: _HttpClientXsrfModule,
-      providers: withXsrfConfiguration(options).ɵproviders
-    };
-  }
-  static {
-    this.ɵfac = function HttpClientXsrfModule_Factory(t) {
-      return new (t || _HttpClientXsrfModule)();
-    };
-  }
-  static {
-    this.ɵmod = ɵɵdefineNgModule({
-      type: _HttpClientXsrfModule
-    });
-  }
-  static {
-    this.ɵinj = ɵɵdefineInjector({
-      providers: [HttpXsrfInterceptor, {
-        provide: HTTP_INTERCEPTORS,
-        useExisting: HttpXsrfInterceptor,
-        multi: true
-      }, {
-        provide: HttpXsrfTokenExtractor,
-        useClass: HttpXsrfCookieExtractor
-      }, withXsrfConfiguration({
-        cookieName: XSRF_DEFAULT_COOKIE_NAME,
-        headerName: XSRF_DEFAULT_HEADER_NAME
-      }).ɵproviders, {
-        provide: XSRF_ENABLED,
-        useValue: true
-      }]
-    });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpClientXsrfModule, [{
-    type: NgModule,
-    args: [{
-      providers: [HttpXsrfInterceptor, {
-        provide: HTTP_INTERCEPTORS,
-        useExisting: HttpXsrfInterceptor,
-        multi: true
-      }, {
-        provide: HttpXsrfTokenExtractor,
-        useClass: HttpXsrfCookieExtractor
-      }, withXsrfConfiguration({
-        cookieName: XSRF_DEFAULT_COOKIE_NAME,
-        headerName: XSRF_DEFAULT_HEADER_NAME
-      }).ɵproviders, {
-        provide: XSRF_ENABLED,
-        useValue: true
-      }]
-    }]
-  }], null, null);
-})();
-var HttpClientModule = class _HttpClientModule {
-  static {
-    this.ɵfac = function HttpClientModule_Factory(t) {
-      return new (t || _HttpClientModule)();
-    };
-  }
-  static {
-    this.ɵmod = ɵɵdefineNgModule({
-      type: _HttpClientModule
-    });
-  }
-  static {
-    this.ɵinj = ɵɵdefineInjector({
-      providers: [provideHttpClient(withInterceptorsFromDi())]
-    });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpClientModule, [{
-    type: NgModule,
-    args: [{
-      /**
-       * Configures the [dependency injector](guide/glossary#injector) where it is imported
-       * with supporting services for HTTP communications.
-       */
-      providers: [provideHttpClient(withInterceptorsFromDi())]
-    }]
-  }], null, null);
-})();
-var HttpClientJsonpModule = class _HttpClientJsonpModule {
-  static {
-    this.ɵfac = function HttpClientJsonpModule_Factory(t) {
-      return new (t || _HttpClientJsonpModule)();
-    };
-  }
-  static {
-    this.ɵmod = ɵɵdefineNgModule({
-      type: _HttpClientJsonpModule
-    });
-  }
-  static {
-    this.ɵinj = ɵɵdefineInjector({
-      providers: [withJsonpSupport().ɵproviders]
-    });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpClientJsonpModule, [{
-    type: NgModule,
-    args: [{
-      providers: [withJsonpSupport().ɵproviders]
-    }]
-  }], null, null);
-})();
-var BODY = "b";
-var HEADERS = "h";
-var STATUS = "s";
-var STATUS_TEXT = "st";
-var URL2 = "u";
-var RESPONSE_TYPE = "rt";
-var CACHE_OPTIONS = new InjectionToken(ngDevMode ? "HTTP_TRANSFER_STATE_CACHE_OPTIONS" : "");
-var ALLOWED_METHODS = ["GET", "HEAD"];
-function transferCacheInterceptorFn(req, next) {
-  const _a = inject(CACHE_OPTIONS), {
-    isCacheActive
-  } = _a, globalOptions = __objRest(_a, [
-    "isCacheActive"
-  ]);
-  const {
-    transferCache: requestOptions,
-    method: requestMethod
-  } = req;
-  if (!isCacheActive || // POST requests are allowed either globally or at request level
-  requestMethod === "POST" && !globalOptions.includePostRequests && !requestOptions || requestMethod !== "POST" && !ALLOWED_METHODS.includes(requestMethod) || requestOptions === false || //
-  globalOptions.filter?.(req) === false) {
-    return next(req);
-  }
-  const transferState = inject(TransferState);
-  const storeKey = makeCacheKey(req);
-  const response = transferState.get(storeKey, null);
-  let headersToInclude = globalOptions.includeHeaders;
-  if (typeof requestOptions === "object" && requestOptions.includeHeaders) {
-    headersToInclude = requestOptions.includeHeaders;
-  }
-  if (response) {
-    const {
-      [BODY]: undecodedBody,
-      [RESPONSE_TYPE]: responseType,
-      [HEADERS]: httpHeaders,
-      [STATUS]: status,
-      [STATUS_TEXT]: statusText,
-      [URL2]: url
-    } = response;
-    let body = undecodedBody;
-    switch (responseType) {
-      case "arraybuffer":
-        body = new TextEncoder().encode(undecodedBody).buffer;
-        break;
-      case "blob":
-        body = new Blob([undecodedBody]);
-        break;
-    }
-    let headers = new HttpHeaders(httpHeaders);
-    if (typeof ngDevMode === "undefined" || ngDevMode) {
-      headers = appendMissingHeadersDetection(req.url, headers, headersToInclude ?? []);
-    }
-    return of(new HttpResponse({
-      body,
-      headers,
-      status,
-      statusText,
-      url
-    }));
-  }
-  const isServer = isPlatformServer(inject(PLATFORM_ID));
-  return next(req).pipe(tap((event) => {
-    if (event instanceof HttpResponse && isServer) {
-      transferState.set(storeKey, {
-        [BODY]: event.body,
-        [HEADERS]: getFilteredHeaders(event.headers, headersToInclude),
-        [STATUS]: event.status,
-        [STATUS_TEXT]: event.statusText,
-        [URL2]: event.url || "",
-        [RESPONSE_TYPE]: req.responseType
-      });
-    }
-  }));
-}
-function getFilteredHeaders(headers, includeHeaders) {
-  if (!includeHeaders) {
-    return {};
-  }
-  const headersMap = {};
-  for (const key of includeHeaders) {
-    const values = headers.getAll(key);
-    if (values !== null) {
-      headersMap[key] = values;
-    }
-  }
-  return headersMap;
-}
-function sortAndConcatParams(params) {
-  return [...params.keys()].sort().map((k) => `${k}=${params.getAll(k)}`).join("&");
-}
-function makeCacheKey(request) {
-  const {
-    params,
-    method,
-    responseType,
-    url
-  } = request;
-  const encodedParams = sortAndConcatParams(params);
-  let serializedBody = request.serializeBody();
-  if (serializedBody instanceof URLSearchParams) {
-    serializedBody = sortAndConcatParams(serializedBody);
-  } else if (typeof serializedBody !== "string") {
-    serializedBody = "";
-  }
-  const key = [method, responseType, url, serializedBody, encodedParams].join("|");
-  const hash = generateHash(key);
-  return makeStateKey(hash);
-}
-function generateHash(value) {
-  let hash = 0;
-  for (const char of value) {
-    hash = Math.imul(31, hash) + char.charCodeAt(0) << 0;
-  }
-  hash += 2147483647 + 1;
-  return hash.toString();
-}
-function withHttpTransferCache(cacheOptions) {
-  return [{
-    provide: CACHE_OPTIONS,
-    useFactory: () => {
-      performanceMarkFeature("NgHttpTransferCache");
-      return __spreadValues({
-        isCacheActive: true
-      }, cacheOptions);
-    }
-  }, {
-    provide: HTTP_ROOT_INTERCEPTOR_FNS,
-    useValue: transferCacheInterceptorFn,
-    multi: true,
-    deps: [TransferState, CACHE_OPTIONS]
-  }, {
-    provide: APP_BOOTSTRAP_LISTENER,
-    multi: true,
-    useFactory: () => {
-      const appRef = inject(ApplicationRef);
-      const cacheState = inject(CACHE_OPTIONS);
-      return () => {
-        whenStable(appRef).then(() => {
-          cacheState.isCacheActive = false;
-        });
-      };
-    }
-  }];
-}
-function appendMissingHeadersDetection(url, headers, headersToInclude) {
-  const warningProduced = /* @__PURE__ */ new Set();
-  return new Proxy(headers, {
-    get(target, prop) {
-      const value = Reflect.get(target, prop);
-      const methods = /* @__PURE__ */ new Set(["get", "has", "getAll"]);
-      if (typeof value !== "function" || !methods.has(prop)) {
-        return value;
-      }
-      return (headerName) => {
-        const key = (prop + ":" + headerName).toLowerCase();
-        if (!headersToInclude.includes(headerName) && !warningProduced.has(key)) {
-          warningProduced.add(key);
-          const truncatedUrl = truncateMiddle(url);
-          console.warn(formatRuntimeError(2802, `Angular detected that the \`${headerName}\` header is accessed, but the value of the header was not transferred from the server to the client by the HttpTransferCache. To include the value of the \`${headerName}\` header for the \`${truncatedUrl}\` request, use the \`includeHeaders\` list. The \`includeHeaders\` can be defined either on a request level by adding the \`transferCache\` parameter, or on an application level by adding the \`httpCacheTransfer.includeHeaders\` argument to the \`provideClientHydration()\` call. `));
-        }
-        return value.apply(target, [headerName]);
-      };
-    }
-  });
 }
 
 export {
@@ -7206,59 +4938,15 @@ export {
   PLATFORM_BROWSER_ID,
   isPlatformServer,
   ViewportScroller,
-  XhrFactory,
-  HttpHandler,
-  HttpBackend,
-  HttpHeaders,
-  HttpUrlEncodingCodec,
-  HttpParams,
-  HttpContextToken,
-  HttpContext,
-  HttpRequest,
-  HttpEventType,
-  HttpResponseBase,
-  HttpHeaderResponse,
-  HttpResponse,
-  HttpErrorResponse,
-  HttpStatusCode,
-  HttpClient,
-  FetchBackend,
-  HTTP_INTERCEPTORS,
-  HTTP_ROOT_INTERCEPTOR_FNS,
-  PRIMARY_HTTP_BACKEND,
-  HttpInterceptorHandler,
-  JsonpClientBackend,
-  JsonpInterceptor,
-  HttpXhrBackend,
-  HttpXsrfTokenExtractor,
-  HttpFeatureKind,
-  provideHttpClient,
-  withInterceptors,
-  withInterceptorsFromDi,
-  withXsrfConfiguration,
-  withNoXsrfProtection,
-  withJsonpSupport,
-  withRequestsMadeViaParent,
-  withFetch,
-  HttpClientXsrfModule,
-  HttpClientModule,
-  HttpClientJsonpModule,
-  withHttpTransferCache
+  XhrFactory
 };
 /*! Bundled license information:
 
 @angular/common/fesm2022/common.mjs:
   (**
-   * @license Angular v17.3.12
-   * (c) 2010-2024 Google LLC. https://angular.io/
-   * License: MIT
-   *)
-
-@angular/common/fesm2022/http.mjs:
-  (**
-   * @license Angular v17.3.12
+   * @license Angular v19.2.0
    * (c) 2010-2024 Google LLC. https://angular.io/
    * License: MIT
    *)
 */
-//# sourceMappingURL=chunk-IR7BTO2P.js.map
+//# sourceMappingURL=chunk-L6HZFD6T.js.map
