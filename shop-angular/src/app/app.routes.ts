@@ -3,7 +3,7 @@ import { HomeComponent } from './home/home.component';
 
 export const routes: Routes = [
     {
-        path: 'Home',
+        path: '',
         component: HomeComponent
     },
     //add a component for page not found
