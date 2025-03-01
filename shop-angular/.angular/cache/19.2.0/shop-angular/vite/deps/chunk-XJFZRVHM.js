@@ -39,6 +39,9 @@ function addClass(element, className) {
     [className].flat().filter(Boolean).forEach((_classNames) => _classNames.split(" ").forEach(fn));
   }
 }
+function calculateBodyScrollbarWidth() {
+  return window.innerWidth - document.documentElement.offsetWidth;
+}
 function getCSSVariableByRegex(variableRegex) {
   for (const sheet of document == null ? void 0 : document.styleSheets) {
     try {
@@ -56,6 +59,11 @@ function getCSSVariableByRegex(variableRegex) {
     }
   }
   return null;
+}
+function blockBodyScroll(className = "p-overflow-hidden") {
+  const variableData = getCSSVariableByRegex(/-scrollbar-width$/);
+  (variableData == null ? void 0 : variableData.name) && document.body.style.setProperty(variableData.name, calculateBodyScrollbarWidth() + "px");
+  addClass(document.body, className);
 }
 function removeClass(element, className) {
   if (element && className) {
@@ -153,6 +161,15 @@ function setAttributes(element, attributes = {}) {
       }
     });
   }
+}
+function createElement(type, attributes = {}, ...children) {
+  if (type) {
+    const element = document.createElement(type);
+    setAttributes(element, attributes);
+    element.append(...children);
+    return element;
+  }
+  return void 0;
 }
 function fadeIn(element, duration) {
   if (element) {
@@ -1502,6 +1519,7 @@ var TreeDragDropService = class _TreeDragDropService {
 export {
   hasClass,
   addClass,
+  blockBodyScroll,
   removeClass,
   unblockBodyScroll,
   getViewport,
@@ -1510,6 +1528,7 @@ export {
   getOuterWidth,
   appendChild,
   setAttributes,
+  createElement,
   fadeIn,
   findSingle,
   focus,
@@ -1563,4 +1582,4 @@ export {
   TranslationKeys,
   TreeDragDropService
 };
-//# sourceMappingURL=chunk-UZGNELXY.js.map
+//# sourceMappingURL=chunk-XJFZRVHM.js.map

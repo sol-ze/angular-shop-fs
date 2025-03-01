@@ -1,11 +1,19 @@
 <div class="column gap-1">
+  <!-- Add Product Button -->
+  <p-button label="Add Product" severity="success" (click)="toggleAddPopup()" />
+
+  <!-- Edit Product Button -->
+
   <!-- Products Section -->
   <div class="row wrap gap-1 space-between">
     <app-product
       *ngFor="let product of products"
       [product]="product"
-      (productOutput)="onProductOutput($event)"
-    ></app-product>
+      (edit)="toggleEditPopup($event)"
+      (delete)="toggleDeletePopup($event)"
+    >
+
+    </app-product>
   </div>
 
   <!-- Paginator -->
@@ -16,3 +24,15 @@
     (onPageChange)="onPageChange($event)"
   />
 </div>
+<app-edit-popup
+[product]="selectedProduct"
+[(display)]="displayEditPopup"
+header="Edit Product"
+(confirm)="onConfirmEdit($event)"
+></app-edit-popup>
+
+<app-edit-popup
+[(display)]="displayAddPopup"
+header="Add Product"
+(confirm)="onConfirmAdd($event)"
+></app-edit-popup>
