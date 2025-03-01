@@ -25,19 +25,23 @@ export class HomeComponent {
   onProductOutput(product: Product) {
     console.log(product, 'Output');
   }
-  fetchProducts(page: number, perPage: number) {
-    this.productsService
-    .getProducts('http://localhost:3000/clothes', { page, perPage })
-    .subscribe((products: Products) => {
-      this.products = products.items;
-      this.totalRecords = products.total;
-    });
-  }
-
   onPageChange(event: any) {
     this.fetchProducts(event.page, event.rows);
   }
+
+  fetchProducts(page: number, perPage: number) {
+    this.productsService
+      .getProducts('http://localhost:3000/clothes', { page, perPage })
+      .subscribe((products: Products) => {
+        this.products = products.items;
+        this.totalRecords = products.total;
+      });
+  }
+  editProduct(product: Product) {}
+  deleteProduct(product: Product) {}
+  addProduct(product: Product) {}
+
   ngOnInit() {
-    this.fetchProducts(0,this.rows);
+    this.fetchProducts(0, this.rows);
   }
 }
