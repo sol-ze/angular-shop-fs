@@ -22,7 +22,7 @@ export class HomeComponent {
   products: Product[] = [];
 
   totalRecords: number = 0;
-  rows: number = 5;
+  rows: number = 10;
 
   displayEditPopup: boolean = false;
   displayAddPopup: boolean = false;

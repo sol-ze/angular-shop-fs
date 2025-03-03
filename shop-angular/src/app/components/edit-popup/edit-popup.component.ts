@@ -72,7 +72,15 @@ export class EditPopupComponent {
   });
 
   onConfirm() {
-    this.confirm.emit(this.product);
+
+    const {name, image, price, rating} = this.productForm.value;
+    this.confirm.emit({
+      name: name || '',
+      image: image || '',
+      price: price || '',
+      rating: rating || 0,
+
+    });
     this.display = false;
     this.displayChange.emit(this.display);
   }
