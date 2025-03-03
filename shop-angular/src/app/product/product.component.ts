@@ -22,6 +22,12 @@ export class ProductComponent {
   @Output() edit: EventEmitter<Product> = new EventEmitter<Product>();
   @Output() delete: EventEmitter<Product> = new EventEmitter<Product>();
 
+  truncateName(name: string) {
+    if(name.length > 16) {
+      return name.slice(0,17) + '...'
+    }
+    return name;
+  }
   editProduct() {
     this.edit.emit(this.product);
   }

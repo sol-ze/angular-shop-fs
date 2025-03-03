@@ -1,20 +1,25 @@
 <div class="column gap-1">
   <!-- Add Product Button -->
-  <p-button label="Add Product" icon="pi pi-plus" severity="success" (click)="toggleAddPopup()" />
+  <p-button
+    label="Add Product"
+    icon="pi pi-plus"
+    severity="info"
+    (click)="toggleAddPopup()"
+    class="add-product-btn"
+  />
 
   <!-- Edit Product Button -->
 
   <!-- Products Section -->
-  <div class="row wrap gap-1 space-between">
+  <div class="row wrap gap-2 space-between">
     @for (product of products; track product.id) {
-      <app-product
-        [product]="product"
-        (edit)="toggleEditPopup($event)"
-        (delete)="toggleDeletePopup($event)"
-      />
+    <app-product
+      [product]="product"
+      (edit)="toggleEditPopup($event)"
+      (delete)="toggleDeletePopup($event)"
+    />
     }
   </div>
-
 
   <!-- Paginator -->
   <p-paginator
@@ -22,17 +27,18 @@
     [totalRecords]="totalRecords"
     [rowsPerPageOptions]="[5, 10, 20]"
     (onPageChange)="onPageChange($event)"
+    #paginator
   />
 </div>
 <app-edit-popup
-[product]="selectedProduct"
-[(display)]="displayEditPopup"
-header="Edit Product"
-(confirm)="onConfirmEdit($event)"
+  [product]="selectedProduct"
+  [(display)]="displayEditPopup"
+  header="Edit Product"
+  (confirm)="onConfirmEdit($event)"
 ></app-edit-popup>
 
 <app-edit-popup
-[(display)]="displayAddPopup"
-header="Add Product"
-(confirm)="onConfirmAdd($event)"
+  [(display)]="displayAddPopup"
+  header="Add Product"
+  (confirm)="onConfirmAdd($event)"
 ></app-edit-popup>

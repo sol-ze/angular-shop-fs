@@ -4,7 +4,7 @@
   [(visible)]="display"
   [closable]="false"
 >
-  <div class="column gap-1">
+  <div class="column gap-1 form-wrapper">
     <!-- Name -->
     <div class="row gap-05">
       <label for="name" class="">Name:</label>
@@ -24,14 +24,12 @@
     </div>
 
     <!-- Rating -->
-    <p-rating [(ngModel)]="product.rating" />
+    <p-rating [(ngModel)]="product.rating" class="rating" />
 
     <!-- Buttons -->
-  <p-footer>
-    <p-button label="Confirm" severity="info" (click)="onConfirm()" />
-    <p-button label="cancel" severity="danger" (click)="onCancel()" />
-  </p-footer>
+    <p-footer>
+      <p-button label="Confirm" severity="info" (click)="onConfirm()" />
+      <p-button label="cancel" severity="danger" (click)="onCancel()" />
+    </p-footer>
   </div>
-
-  
 </p-dialog>
