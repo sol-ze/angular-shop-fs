@@ -1,22 +1,22 @@
 import {
+  NG_VALUE_ACCESSOR
+} from "./chunk-2P2TG5O2.js";
+import {
   AutoFocus,
   BaseComponent,
   StarFillIcon,
   StarIcon
-} from "./chunk-YFQZSBIC.js";
+} from "./chunk-N37CK6N4.js";
 import {
   BaseStyle
-} from "./chunk-24VIJLZX.js";
+} from "./chunk-I5EMPRYV.js";
 import {
   PrimeTemplate,
   SharedModule,
   focus,
   getFirstFocusableElement,
   uuid
-} from "./chunk-XJFZRVHM.js";
-import {
-  NG_VALUE_ACCESSOR
-} from "./chunk-2P2TG5O2.js";
+} from "./chunk-GSJBL2BV.js";
 import {
   CommonModule,
   NgClass,

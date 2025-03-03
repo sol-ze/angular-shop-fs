@@ -79,6 +79,21 @@ function unblockBodyScroll(className = "p-overflow-hidden") {
   (variableData == null ? void 0 : variableData.name) && document.body.style.removeProperty(variableData.name);
   removeClass(document.body, className);
 }
+function getHiddenElementDimensions(element) {
+  let dimensions = {
+    width: 0,
+    height: 0
+  };
+  if (element) {
+    element.style.visibility = "hidden";
+    element.style.display = "block";
+    dimensions.width = element.offsetWidth;
+    dimensions.height = element.offsetHeight;
+    element.style.display = "none";
+    element.style.visibility = "visible";
+  }
+  return dimensions;
+}
 function getViewport() {
   let win = window, d = document, e = d.documentElement, g = d.getElementsByTagName("body")[0], w = win.innerWidth || e.clientWidth || g.clientWidth, h = win.innerHeight || e.clientHeight || g.clientHeight;
   return {
@@ -93,6 +108,39 @@ function getWindowScrollLeft() {
 function getWindowScrollTop() {
   let doc = document.documentElement;
   return (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
+}
+function absolutePosition(element, target, gutter = true) {
+  var _a, _b, _c, _d;
+  if (element) {
+    const elementDimensions = element.offsetParent ? {
+      width: element.offsetWidth,
+      height: element.offsetHeight
+    } : getHiddenElementDimensions(element);
+    const elementOuterHeight = elementDimensions.height;
+    const elementOuterWidth = elementDimensions.width;
+    const targetOuterHeight = target.offsetHeight;
+    const targetOuterWidth = target.offsetWidth;
+    const targetOffset = target.getBoundingClientRect();
+    const windowScrollTop = getWindowScrollTop();
+    const windowScrollLeft = getWindowScrollLeft();
+    const viewport = getViewport();
+    let top, left, origin = "top";
+    if (targetOffset.top + targetOuterHeight + elementOuterHeight > viewport.height) {
+      top = targetOffset.top + windowScrollTop - elementOuterHeight;
+      origin = "bottom";
+      if (top < 0) {
+        top = windowScrollTop;
+      }
+    } else {
+      top = targetOuterHeight + targetOffset.top + windowScrollTop;
+    }
+    if (targetOffset.left + elementOuterWidth > viewport.width) left = Math.max(0, targetOffset.left + windowScrollLeft + targetOuterWidth - elementOuterWidth);
+    else left = targetOffset.left + windowScrollLeft;
+    element.style.top = top + "px";
+    element.style.left = left + "px";
+    element.style.transformOrigin = origin;
+    gutter && (element.style.marginTop = origin === "bottom" ? `calc(${(_b = (_a = getCSSVariableByRegex(/-anchor-gutter$/)) == null ? void 0 : _a.value) != null ? _b : "2px"} * -1)` : (_d = (_c = getCSSVariableByRegex(/-anchor-gutter$/)) == null ? void 0 : _c.value) != null ? _d : "");
+  }
 }
 function getOuterWidth(element, margin) {
   if (element instanceof HTMLElement) {
@@ -307,6 +355,9 @@ function getWidth(element) {
 }
 function isVisible(element) {
   return !!(element && element.offsetParent != null);
+}
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window["MSStream"];
 }
 function isTouchDevice() {
   return "ontouchstart" in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
@@ -1525,6 +1576,7 @@ export {
   getViewport,
   getWindowScrollLeft,
   getWindowScrollTop,
+  absolutePosition,
   getOuterWidth,
   appendChild,
   setAttributes,
@@ -1542,6 +1594,7 @@ export {
   getTargetElement,
   getWidth,
   isVisible,
+  isIOS,
   isTouchDevice,
   remove,
   removeChild,
@@ -1582,4 +1635,4 @@ export {
   TranslationKeys,
   TreeDragDropService
 };
-//# sourceMappingURL=chunk-XJFZRVHM.js.map
+//# sourceMappingURL=chunk-GSJBL2BV.js.map
