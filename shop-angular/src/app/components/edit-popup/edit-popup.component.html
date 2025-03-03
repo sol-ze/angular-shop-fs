@@ -4,31 +4,31 @@
   [(visible)]="display"
   [closable]="false"
 >
-  <div class="column gap-1 form-wrapper">
+  <div class="column gap-1 form-wrapper" [formGroup]="productForm">
     <!-- Name -->
     <div class="row gap-05">
       <label for="name" class="">Name:</label>
-      <input type="text" [(ngModel)]="product.name" />
+      <input type="text" formControlName="name" />
     </div>
 
     <!-- Price -->
     <div class="row gap-05">
       <label for="price" class="">Price:</label>
-      <input type="text" [(ngModel)]="product.price" />
+      <input type="text" formControlName="price" />
     </div>
 
     <!-- Image -->
     <div class="row gap-05">
       <label for="image" class="">Image:</label>
-      <input type="text" [(ngModel)]="product.image" />
+      <input type="text" formControlName="image" />
     </div>
 
     <!-- Rating -->
-    <p-rating [(ngModel)]="product.rating" class="rating" />
+    <p-rating formControlName="rating" class="rating" />
 
     <!-- Buttons -->
     <p-footer>
-      <p-button label="Confirm" severity="info" (click)="onConfirm()" />
+      <p-button label="Confirm" severity="info" (click)="onConfirm()" [class.disables]="!productForm.valid" />
       <p-button label="cancel" severity="danger" (click)="onCancel()" />
     </p-footer>
   </div>

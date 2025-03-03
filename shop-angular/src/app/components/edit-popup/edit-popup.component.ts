@@ -3,16 +3,31 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
 import { Product } from 'src/types';
 import { ButtonModule } from 'primeng/button';
-import { FormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormsModule,
+  ReactiveFormsModule,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { RatingModule } from 'primeng/rating';
 
 @Component({
   selector: 'app-edit-popup',
-  imports: [DialogModule, CommonModule, ButtonModule, FormsModule, RatingModule],
+  imports: [
+    DialogModule,
+    CommonModule,
+    ButtonModule,
+    FormsModule,
+    RatingModule,
+    ReactiveFormsModule,
+  ],
   templateUrl: './edit-popup.component.html',
-  styleUrl: './edit-popup.component.css'
+  styleUrl: './edit-popup.component.css',
 })
 export class EditPopupComponent {
+  constructor(private formBuilder: FormBuilder) {}
+
   @Input() display: boolean = false;
   @Output() displayChange = new EventEmitter<boolean>();
 
@@ -23,9 +38,38 @@ export class EditPopupComponent {
   @Input() product: Product = {
     name: '',
     image: '',
-    price:'',
-    rating: 0
+    price: '',
+    rating: 0,
+  };
+
+  specialCharacterValidator(): ValidatorFn {
+    return (control) => {
+      const hasSpecialCharacter = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(
+        control.value
+      );
+
+      return hasSpecialCharacter ? { hasSpecialCharacter: true } : null;
+    };
   }
+
+  ngOnChanges() {
+    // Edits the current value of the form
+    this.productForm.patchValue(
+      this.product
+      // {
+      // name: this.product.name,
+      // image: this.product.image,
+      // price: this.product.price,
+      // rating: this.product.rating
+      // }
+    );
+  }
+  productForm = this.formBuilder.group({
+    name: ['', [Validators.required, this.specialCharacterValidator()]],
+    image: [''],
+    price: ['', [Validators.required]],
+    rating: [0],
+  });
 
   onConfirm() {
     this.confirm.emit(this.product);
